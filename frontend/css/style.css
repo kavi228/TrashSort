@@ -1,0 +1,378 @@
+/* Основные стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #000;
+    color: #ffd700; /* Желтый */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    width: 100%;
+}
+
+/* Шапка и навигация */
+header {
+    background-color: #222;
+    padding: 15px 0;
+    border-bottom: 2px solid #ffd700;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.nav-button {
+    background-color: #ffd700;
+    color: #000;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.nav-button:hover {
+    background-color: #ffed4e;
+    transform: scale(1.05);
+}
+
+/* Основной контент */
+main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.page-title {
+    font-size: 2.5rem;
+    margin-bottom: 40px;
+    text-align: center;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+/* Страница 1: Выбор пользователя */
+.user-selection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+    max-width: 600px;
+}
+
+.user-list {
+    width: 100%;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 20px;
+    background-color: #111;
+}
+
+.user-item {
+    padding: 15px;
+    margin: 10px 0;
+    background-color: #222;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.user-item:hover {
+    background-color: #333;
+    border-color: #ffd700;
+}
+
+.user-item.selected {
+    background-color: #333;
+    border: 2px solid #ffd700;
+}
+
+.add-user-form {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    margin-top: 20px;
+}
+
+.add-user-input {
+    flex: 1;
+    padding: 12px;
+    border: 2px solid #ffd700;
+    border-radius: 5px;
+    background-color: #111;
+    color: #ffd700;
+    font-size: 1rem;
+}
+
+.add-user-input::placeholder {
+    color: #666;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.btn {
+    padding: 15px 40px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #ffd700;
+    color: #000;
+}
+
+.btn-primary:hover {
+    background-color: #ffed4e;
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background-color: #333;
+    color: #ffd700;
+    border: 2px solid #ffd700;
+}
+
+.btn-secondary:hover {
+    background-color: #444;
+}
+
+/* Страница 2: Выбор материала */
+.materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+    margin-top: 30px;
+}
+
+.material-card {
+    background-color: #111;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 25px;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.material-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+}
+
+.material-card.selected {
+    background-color: #222;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.material-title {
+    font-size: 1.4rem;
+    color: #ffd700;
+    margin-bottom: 10px;
+}
+
+.material-description {
+    color: #ccc;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.material-example {
+    background-color: #222;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 0.85rem;
+    color: #aaa;
+    white-space: pre-line;
+}
+
+/* Страница 3: Инструкции */
+.instructions-container {
+    max-width: 800px;
+    width: 100%;
+    background-color: #111;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 30px;
+    margin-top: 20px;
+}
+
+.instructions-section {
+    margin-bottom: 30px;
+}
+
+.section-title {
+    color: #ffd700;
+    margin-bottom: 15px;
+    font-size: 1.3rem;
+}
+
+.instructions-content {
+    background-color: #222;
+    padding: 20px;
+    border-radius: 5px;
+    white-space: pre-line;
+    line-height: 1.6;
+}
+
+.restrictions {
+    background-color: #330000;
+    border-left: 4px solid #ff3333;
+}
+
+.warning-button {
+    background-color: #ff3333;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: all 0.3s;
+}
+
+.warning-button:hover {
+    background-color: #ff6666;
+    transform: scale(1.05);
+}
+
+/* Страница 4: Статистика */
+.stats-container {
+    max-width: 800px;
+    width: 100%;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.stat-card {
+    background-color: #111;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 25px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffd700;
+    margin: 10px 0;
+}
+
+.stat-label {
+    color: #ccc;
+    font-size: 0.9rem;
+}
+
+.compliment {
+    background-color: #111;
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 30px;
+    margin: 30px 0;
+    text-align: center;
+    font-size: 1.2rem;
+    font-style: italic;
+}
+
+.materials-breakdown {
+    margin-top: 40px;
+}
+
+.breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: #111;
+    margin: 10px 0;
+    border-radius: 5px;
+    border-left: 4px solid #ffd700;
+}
+
+/* Футер */
+footer {
+    text-align: center;
+    padding: 20px;
+    background-color: #222;
+    border-top: 2px solid #ffd700;
+    margin-top: 40px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .materials-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .btn {
+        padding: 12px 25px;
+        font-size: 1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .page-title {
+        font-size: 1.5rem;
+    }
+    
+    .material-card {
+        padding: 15px;
+    }
+}

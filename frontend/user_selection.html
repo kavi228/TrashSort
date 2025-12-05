@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashSort - Выбор пользователя</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">♻️ TrashSort</div>
+                <button id="backBtn" class="nav-button">← Назад</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Пользователи</h1>
+            
+            <div class="user-selection">
+                <div class="user-list" id="userList">
+                    <!-- Список пользователей загружается через JS -->
+                </div>
+                
+                <div class="add-user-form">
+                    <input type="text" 
+                           id="newUsername" 
+                           class="add-user-input" 
+                           placeholder="Введите имя нового пользователя">
+                    <button id="addUserBtn" class="btn btn-primary">Добавить</button>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="nextBtn" class="btn btn-primary">Далее →</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>♻️ Система сортировки мусора TrashSort © 2024</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

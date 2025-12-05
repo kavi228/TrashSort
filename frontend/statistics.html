@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashSort - Статистика</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">♻️ TrashSort</div>
+                <button id="backBtn" class="nav-button">← Назад</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Ваша статистика</h1>
+            
+            <div class="stats-container">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Всего утилизировано</div>
+                        <div class="stat-value" id="totalDisposals">0</div>
+                        <div class="stat-label">предметов</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">За последний год</div>
+                        <div class="stat-value" id="yearlyDisposals">0</div>
+                        <div class="stat-label">предметов</div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-label">За последний месяц</div>
+                        <div class="stat-value" id="monthlyDisposals">0</div>
+                        <div class="stat-label">предметов</div>
+                    </div>
+                </div>
+                
+                <div class="compliment">
+                    <p id="complimentText">
+                        Спасибо, что правильно утилизировали отходы! Планета благодарна вам.
+                    </p>
+                </div>
+                
+                <div class="materials-breakdown">
+                    <h2 class="section-title">Разбивка по материалам:</h2>
+                    <div id="materialsBreakdown">
+                        <!-- Данные загружаются через JS -->
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <button id="nextBtn" class="btn btn-primary">Завершить →</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>♻️ Система сортировки мусора TrashSort © 2024</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
