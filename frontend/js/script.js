@@ -1,18 +1,577 @@
-// Конфигурация
-const API_BASE_URL = 'http://localhost:5000/api';
+// УПРОЩЕННАЯ ВЕРСИЯ 2.0 - С УДАЛЕНИЕМ ПОЛЬЗОВАТЕЛЕЙ И ИНДИВИДУАЛЬНОЙ СТАТИСТИКОЙ
+console.log('TrashSort JS loaded - Версия 2.0');
 
-// Глобальные переменные состояния
+// ========== ДАННЫЕ ==========
+const materials = [
+    {
+        id: 1,
+        name: "Пластик",
+        description: "Бутылки, упаковки, контейнеры из пластика",
+        example: "PET-бутылки (1), канистры (2), пакеты (4), стаканчики (6)",
+        instructions: "1. Ополосните от остатков содержимого\n2. Снимите крышки и этикетки\n3. Сплющите для экономии места\n4. Отнесите в контейнер для пластика",
+        restrictions: "Не принимается: загрязнённый жиром пластик, игрушки, трубы, смешанные материалы"
+    },
+    {
+        id: 2,
+        name: "Стекло",
+        description: "Бутылки, банки, стеклянная тара",
+        example: "Пищевые банки, бутылки из-под напитков, стеклянная посуда",
+        instructions: "1. Ополосните от остатков\n2. Не разбивайте заранее\n3. Крышки снимайте отдельно\n4. Сортируйте по цвету если требуется",
+        restrictions: "Не принимается: зеркала, оконные стёкла, лампочки, хрусталь, керамика"
+    },
+    {
+        id: 3,
+        name: "Бумага",
+        description: "Газеты, картон, офисная бумага",
+        example: "Газеты, журналы, картон, офисная бумага, тетради",
+        instructions: "1. Удалите скрепки и скобы\n2. Не мните в комок\n3. Сложите аккуратно\n4. Свяжите в стопки или используйте коробки",
+        restrictions: "Не принимается: ламинированная бумага, чеки, салфетки, обои, упаковка от яиц"
+    },
+    {
+        id: 4,
+        name: "Металл",
+        description: "Алюминиевые и жестяные банки, металлические изделия",
+        example: "Банки из-под напитков, консервные банки, фольга, крышки",
+        instructions: "1. Ополосните от остатков\n2. Сплющите для экономии места\n3. Отделите от других материалов\n4. Сложите в специальный контейнер",
+        restrictions: "Не принимается: баллончики с остатками, батарейки, электроника, провода"
+    },
+    {
+        id: 5,
+        name: "Органика",
+        description: "Пищевые отходы, растения",
+        example: "Очистки овощей, фрукты, яичная скорлупа, чайные пакетики",
+        instructions: "1. Собирайте в отдельный контейнер\n2. Используйте биоразлагаемые пакеты\n3. Регулярно выносите\n4. Можно компостировать",
+        restrictions: "Не принимается: кости, мясо, рыба, молочные продукты, масла"
+    },
+    {
+        id: 6,
+        name: "Опасные отходы",
+        description: "Батарейки, лампы, электроника, лекарства",
+        example: "Батарейки, энергосберегающие лампы, градусники, просроченные лекарства",
+        instructions: "1. Никогда не выбрасывайте с обычным мусором\n2. Отнесите в специальный пункт приёма\n3. Храните отдельно от детей",
+        restrictions: "Требуют специальной утилизации! Не смешивать с другим мусором"
+    }
+];
+
+// ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let currentUser = null;
 let selectedMaterial = null;
-let materials = [];
 
-// Инициализация при загрузке
-document.addEventListener('DOMContentLoaded', function() {
-    // Определяем текущую страницу
-    const path = window.location.pathname.split('/').pop();
+// ========== ОСНОВНЫЕ ФУНКЦИИ ==========
+
+// Сохранить в localStorage
+function saveData(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+}
+
+// Загрузить из localStorage
+function loadData(key) {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : null;
+}
+
+// Перейти на страницу
+function goToPage(page) {
+    window.location.href = page;
+}
+
+// Удалить пользователя
+function deleteUser(userId) {
+    // Загружаем пользователей
+    let users = loadData('trashsort_users') || [];
     
-    // Инициализируем соответствующие обработчики
-    switch(path) {
+    // Фильтруем удаляемого пользователя
+    users = users.filter(user => user.id !== userId);
+    
+    // Сохраняем обновленный список
+    saveData('trashsort_users', users);
+    
+    // Если удаляем текущего пользователя, сбрасываем его
+    if (currentUser && currentUser.id === userId) {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+    }
+    
+    return users;
+}
+
+// Получить статистику для конкретного пользователя
+function getUserStatistics(userId) {
+    // Загружаем все утилизации
+    const disposals = loadData('trashsort_disposals') || [];
+    
+    // Фильтруем по пользователю
+    const userDisposals = disposals.filter(d => d.user_id === userId);
+    
+    // Рассчитываем статистику
+    const total = userDisposals.length;
+    
+    const now = new Date();
+    const oneYearAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const oneMonthAgo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate());
+    
+    const yearly = userDisposals.filter(d => new Date(d.timestamp) > oneYearAgo).length;
+    const monthly = userDisposals.filter(d => new Date(d.timestamp) > oneMonthAgo).length;
+    
+    // Разбивка по материалам
+    const byMaterial = {};
+    userDisposals.forEach(d => {
+        const materialName = d.material_name || "Неизвестно";
+        byMaterial[materialName] = (byMaterial[materialName] || 0) + 1;
+    });
+    
+    return {
+        total,
+        yearly,
+        monthly,
+        byMaterial,
+        userDisposals
+    };
+}
+
+// ========== СТРАНИЦА 1: ВЫБОР ПОЛЬЗОВАТЕЛЯ ==========
+function initUserSelection() {
+    console.log('Инициализация страницы выбора пользователя');
+    
+    const userList = document.getElementById('userList');
+    const addUserBtn = document.getElementById('addUserBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    
+    if (!userList) return;
+    
+    // Загружаем пользователей из localStorage
+    let users = loadData('trashsort_users') || [
+        { id: 1, username: "Алексей" },
+        { id: 2, username: "Мария" },
+        { id: 3, username: "Дмитрий" }
+    ];
+    
+    // Отображаем пользователей
+    function renderUsers() {
+        userList.innerHTML = '';
+        
+        if (users.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'user-item';
+            emptyMsg.style.textAlign = 'center';
+            emptyMsg.style.color = '#666';
+            emptyMsg.textContent = 'Нет пользователей. Добавьте первого!';
+            userList.appendChild(emptyMsg);
+            return;
+        }
+        
+        users.forEach(user => {
+            const userItem = document.createElement('div');
+            userItem.className = 'user-item';
+            userItem.dataset.id = user.id;
+            userItem.dataset.username = user.username;
+            
+            userItem.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                    <span>${user.username}</span>
+                    <button class="delete-user-btn" data-id="${user.id}" 
+                            style="background: #ff3333; color: white; border: none; 
+                                   border-radius: 3px; padding: 3px 8px; cursor: pointer;
+                                   font-size: 12px;">
+                        Удалить
+                    </button>
+                </div>
+            `;
+            
+            // Обработчик выбора пользователя
+            userItem.onclick = function(e) {
+                // Если кликнули по кнопке удаления - не выбираем пользователя
+                if (e.target.classList.contains('delete-user-btn')) {
+                    return;
+                }
+                
+                // Убираем выделение у всех
+                document.querySelectorAll('.user-item').forEach(item => {
+                    item.classList.remove('selected');
+                });
+                // Выделяем текущего
+                this.classList.add('selected');
+                currentUser = user;
+                saveData('currentUser', user);
+                console.log('Выбран пользователь:', user.username);
+            };
+            
+            userList.appendChild(userItem);
+        });
+        
+        // Добавляем обработчики для кнопок удаления
+        document.querySelectorAll('.delete-user-btn').forEach(btn => {
+            btn.onclick = function(e) {
+                e.stopPropagation(); // Останавливаем всплытие события
+                const userId = parseInt(this.dataset.id);
+                const userName = this.closest('.user-item').querySelector('span').textContent;
+                
+                if (confirm(`Удалить пользователя "${userName}"?`)) {
+                    // Удаляем пользователя
+                    users = deleteUser(userId);
+                    
+                    // Перерисовываем список
+                    renderUsers();
+                    
+                    // Если удалили текущего пользователя, сбрасываем выбор
+                    if (currentUser && currentUser.id === userId) {
+                        currentUser = null;
+                        localStorage.removeItem('currentUser');
+                    }
+                }
+            };
+        });
+        
+        // Автовыбор первого пользователя если нет текущего
+        if (!currentUser && users.length > 0) {
+            const firstUserItem = document.querySelector('.user-item:not([style*="text-align: center"])');
+            if (firstUserItem) {
+                firstUserItem.click();
+            }
+        }
+    }
+    
+    // Кнопка "Добавить пользователя"
+    if (addUserBtn) {
+        addUserBtn.onclick = function() {
+            const input = document.getElementById('newUsername');
+            const username = input.value.trim();
+            
+            if (!username) {
+                alert('Введите имя пользователя');
+                return;
+            }
+            
+            // Проверяем, нет ли уже пользователя с таким именем
+            const existingUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+            if (existingUser) {
+                alert('Пользователь с таким именем уже существует!');
+                return;
+            }
+            
+            const newUser = {
+                id: Date.now(),
+                username: username
+            };
+            
+            users.push(newUser);
+            saveData('trashsort_users', users);
+            renderUsers();
+            input.value = '';
+            
+            // Выбираем нового пользователя
+            setTimeout(() => {
+                const newUserElem = document.querySelector(`.user-item[data-id="${newUser.id}"]`);
+                if (newUserElem) {
+                    newUserElem.click();
+                }
+            }, 100);
+        };
+    }
+    
+    // Кнопка "Далее"
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            if (!currentUser) {
+                alert('Выберите пользователя');
+                return;
+            }
+            goToPage('material_selection.html');
+        };
+    }
+    
+    // Кнопка "Назад"
+    if (backBtn) {
+        backBtn.onclick = function() {
+            goToPage('statistics.html');
+        };
+    }
+    
+    // Загружаем текущего пользователя из localStorage
+    currentUser = loadData('currentUser');
+    
+    renderUsers();
+}
+
+// ========== СТРАНИЦА 2: ВЫБОР МАТЕРИАЛА ==========
+function initMaterialSelection() {
+    console.log('Инициализация страницы выбора материала');
+    
+    const materialsContainer = document.getElementById('materialsContainer');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    
+    if (!materialsContainer) return;
+    
+    // Загружаем выбранного пользователя
+    currentUser = loadData('currentUser');
+    if (!currentUser) {
+        alert('Сначала выберите пользователя');
+        goToPage('user_selection.html');
+        return;
+    }
+    
+    // Отображаем материалы
+    materialsContainer.innerHTML = '';
+    materials.forEach(material => {
+        const card = document.createElement('div');
+        card.className = 'material-card';
+        card.dataset.id = material.id;
+        
+        card.innerHTML = `
+            <div class="material-title">${material.name}</div>
+            <div class="material-description">${material.description}</div>
+            <div class="material-example">${material.example}</div>
+        `;
+        
+        card.onclick = function() {
+            // Убираем выделение у всех
+            document.querySelectorAll('.material-card').forEach(item => {
+                item.classList.remove('selected');
+            });
+            // Выделяем текущий
+            this.classList.add('selected');
+            selectedMaterial = material;
+            saveData('selectedMaterial', material);
+            console.log('Выбран материал:', material.name);
+        };
+        
+        materialsContainer.appendChild(card);
+    });
+    
+    // Кнопка "Далее"
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            if (!selectedMaterial) {
+                alert('Выберите материал');
+                return;
+            }
+            goToPage('instructions.html');
+        };
+    }
+    
+    // Кнопка "Назад"
+    if (backBtn) {
+        backBtn.onclick = function() {
+            goToPage('user_selection.html');
+        };
+    }
+}
+
+// ========== СТРАНИЦА 3: ИНСТРУКЦИИ ==========
+function initInstructionsPage() {
+    console.log('Инициализация страницы инструкций');
+    
+    const materialName = document.getElementById('materialName');
+    const instructionsText = document.getElementById('instructionsText');
+    const restrictionsText = document.getElementById('restrictionsText');
+    const hasTriggerBtn = document.getElementById('hasTriggerBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    
+    if (!materialName) return;
+    
+    // Загружаем выбранный материал
+    selectedMaterial = loadData('selectedMaterial');
+    if (!selectedMaterial) {
+        alert('Сначала выберите материал');
+        goToPage('material_selection.html');
+        return;
+    }
+    
+    // Загружаем текущего пользователя
+    currentUser = loadData('currentUser');
+    if (!currentUser) {
+        alert('Пользователь не найден');
+        goToPage('user_selection.html');
+        return;
+    }
+    
+    // Отображаем информацию о материале
+    materialName.textContent = selectedMaterial.name;
+    if (instructionsText) instructionsText.textContent = selectedMaterial.instructions;
+    if (restrictionsText) restrictionsText.textContent = selectedMaterial.restrictions;
+    
+    // Кнопка "Есть триггер"
+    if (hasTriggerBtn) {
+        hasTriggerBtn.onclick = function() {
+            if (confirm('Вы уверены, что у предмета есть особенности, запрещающие утилизацию?')) {
+                alert('Предмет не подлежит утилизации через эту систему. Обратитесь в специальную службу.');
+                goToPage('user_selection.html');
+            }
+        };
+    }
+    
+    // Кнопка "Далее"
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            // Сохраняем статистику ТОЛЬКО для текущего пользователя
+            let disposals = loadData('trashsort_disposals') || [];
+            disposals.push({
+                id: Date.now(),
+                user_id: currentUser.id,
+                username: currentUser.username,
+                material_id: selectedMaterial.id,
+                material_name: selectedMaterial.name,
+                timestamp: new Date().toISOString()
+            });
+            saveData('trashsort_disposals', disposals);
+            
+            goToPage('statistics.html');
+        };
+    }
+    
+    // Кнопка "Назад"
+    if (backBtn) {
+        backBtn.onclick = function() {
+            goToPage('material_selection.html');
+        };
+    }
+}
+
+// ========== СТРАНИЦА 4: СТАТИСТИКА ==========
+function initStatisticsPage() {
+    console.log('Инициализация страницы статистики');
+    
+    const totalDisposals = document.getElementById('totalDisposals');
+    const yearlyDisposals = document.getElementById('yearlyDisposals');
+    const monthlyDisposals = document.getElementById('monthlyDisposals');
+    const complimentText = document.getElementById('complimentText');
+    const materialsBreakdown = document.getElementById('materialsBreakdown');
+    const nextBtn = document.getElementById('nextBtn');
+    const backBtn = document.getElementById('backBtn');
+    const userNameDisplay = document.getElementById('userNameDisplay');
+    
+    // Загружаем текущего пользователя
+    currentUser = loadData('currentUser');
+    if (!currentUser) {
+        alert('Сначала выберите пользователя');
+        goToPage('user_selection.html');
+        return;
+    }
+    
+    // Отображаем имя пользователя в заголовке
+    if (userNameDisplay) {
+        userNameDisplay.textContent = currentUser.username;
+    } else {
+        // Добавляем имя пользователя в заголовок если нет отдельного элемента
+        const pageTitle = document.querySelector('.page-title');
+        if (pageTitle) {
+            pageTitle.innerHTML = `Статистика: <span style="color: #ffed4e">${currentUser.username}</span>`;
+        }
+    }
+    
+    // Получаем статистику ТОЛЬКО для текущего пользователя
+    const stats = getUserStatistics(currentUser.id);
+    
+    // Отображаем статистику
+    if (totalDisposals) totalDisposals.textContent = stats.total;
+    if (yearlyDisposals) yearlyDisposals.textContent = stats.yearly;
+    if (monthlyDisposals) monthlyDisposals.textContent = stats.monthly;
+    
+    // Комплимент в зависимости от статистики
+    if (complimentText) {
+        let compliment;
+        if (stats.total === 0) {
+            compliment = "Начните сортировать мусор - планета будет благодарна!";
+        } else if (stats.total < 5) {
+            compliment = "Спасибо за ваши первые шаги в сортировке отходов!";
+        } else if (stats.total < 20) {
+            compliment = "Вы делаете планету чище с каждой утилизацией!";
+        } else if (stats.monthly > 10) {
+            compliment = "Вы - настоящий герой экологии! Так держать!";
+        } else {
+            const compliments = [
+                "Спасибо, что правильно утилизировали отходы! Планета благодарна вам.",
+                "Каждая правильная сортировка — шаг к чистой Земле. Вы молодец!",
+                "Деревья кланяются вам в ноги за спасённую бумагу!",
+                "Благодаря вам меньше мусора попадает на свалки. Продолжайте в том же духе!"
+            ];
+            compliment = compliments[Math.floor(Math.random() * compliments.length)];
+        }
+        complimentText.textContent = compliment;
+    }
+    
+    // Разбивка по материалам
+    if (materialsBreakdown) {
+        materialsBreakdown.innerHTML = '';
+        
+        if (Object.keys(stats.byMaterial).length > 0) {
+            for (const [material, count] of Object.entries(stats.byMaterial)) {
+                const item = document.createElement('div');
+                item.className = 'breakdown-item';
+                item.innerHTML = `
+                    <span>${material}</span>
+                    <span class="stat-value">${count}</span>
+                `;
+                materialsBreakdown.appendChild(item);
+            }
+        } else {
+            materialsBreakdown.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Нет данных об утилизации</p>';
+        }
+    }
+    
+    // Кнопка "Завершить"
+    if (nextBtn) {
+        nextBtn.onclick = function() {
+            goToPage('user_selection.html');
+        };
+    }
+    
+    // Кнопка "Назад"
+    if (backBtn) {
+        backBtn.onclick = function() {
+            goToPage('instructions.html');
+        };
+    }
+    
+    // Добавляем кнопку сброса статистики пользователя
+    const resetBtn = document.createElement('button');
+    resetBtn.className = 'btn btn-secondary';
+    resetBtn.style.marginTop = '20px';
+    resetBtn.textContent = 'Сбросить мою статистику';
+    resetBtn.onclick = function() {
+        if (confirm(`Сбросить всю статистику пользователя "${currentUser.username}"? Это действие нельзя отменить.`)) {
+            // Удаляем все утилизации этого пользователя
+            let disposals = loadData('trashsort_disposals') || [];
+            disposals = disposals.filter(d => d.user_id !== currentUser.id);
+            saveData('trashsort_disposals', disposals);
+            
+            alert('Статистика сброшена!');
+            // Перезагружаем страницу
+            location.reload();
+        }
+    };
+    
+    // Добавляем кнопку в контейнер
+    const actionButtons = document.querySelector('.action-buttons');
+    if (actionButtons) {
+        actionButtons.appendChild(resetBtn);
+    }
+}
+
+// ========== ГЛАВНАЯ СТРАНИЦА ==========
+function initMainPage() {
+    console.log('Инициализация главной страницы');
+    // Кнопка "Начать сортировку" уже работает через onclick в HTML
+}
+
+// ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM загружен - TrashSort v2.0');
+    
+    // Определяем текущую страницу
+    const path = window.location.pathname;
+    const page = path.split('/').pop() || 'index.html';
+    
+    console.log('Текущая страница:', page);
+    
+    switch(page) {
+        case 'index.html':
+        case '':
+            initMainPage();
+            break;
         case 'user_selection.html':
             initUserSelection();
             break;
@@ -26,336 +585,26 @@ document.addEventListener('DOMContentLoaded', function() {
             initStatisticsPage();
             break;
         default:
-            // Если на главной, перенаправляем на выбор пользователя
-            if(path === '' || path === 'index.html') {
-                window.location.href = 'user_selection.html';
-            }
+            console.log('Неизвестная страница:', page);
     }
     
-    // Инициализация базы данных (вызывается один раз при первом запуске)
-    // fetch(`${API_BASE_URL}/init`, { method: 'POST' })
-    //     .then(response => console.log('DB initialized'))
-    //     .catch(error => console.log('DB already initialized'));
+    // Общая обработка всех кнопок "Назад"
+    setTimeout(() => {
+        const allBackBtns = document.querySelectorAll('#backBtn');
+        allBackBtns.forEach(btn => {
+            if (!btn.onclick) {
+                btn.onclick = function() {
+                    window.history.back();
+                };
+            }
+        });
+    }, 100);
 });
 
-// Страница 1: Выбор пользователя
-async function initUserSelection() {
-    // Загружаем список пользователей
-    await loadUsers();
-    
-    // Обработчик выбора пользователя
-    document.querySelectorAll('.user-item').forEach(item => {
-        item.addEventListener('click', function() {
-            document.querySelectorAll('.user-item').forEach(i => i.classList.remove('selected'));
-            this.classList.add('selected');
-            currentUser = {
-                id: this.dataset.id,
-                username: this.dataset.username
-            };
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        });
-    });
-    
-    // Обработчик добавления пользователя
-    document.getElementById('addUserBtn').addEventListener('click', async function() {
-        const input = document.getElementById('newUsername');
-        const username = input.value.trim();
-        
-        if(!username) {
-            alert('Введите имя пользователя');
-            return;
-        }
-        
-        try {
-            const response = await fetch(`${API_BASE_URL}/users`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username })
-            });
-            
-            const user = await response.json();
-            
-            // Сохраняем текущего пользователя
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            // Очищаем поле
-            input.value = '';
-            
-            // Перезагружаем список
-            await loadUsers();
-            
-            // Выбираем нового пользователя
-            const newUserItem = document.querySelector(`.user-item[data-id="${user.id}"]`);
-            if(newUserItem) {
-                newUserItem.click();
-            }
-            
-        } catch(error) {
-            console.error('Error adding user:', error);
-            alert('Ошибка при добавлении пользователя');
-        }
-    });
-    
-    // Обработчик кнопки "Далее"
-    document.getElementById('nextBtn').addEventListener('click', function() {
-        if(!currentUser) {
-            alert('Выберите пользователя');
-            return;
-        }
-        
-        window.location.href = 'material_selection.html';
-    });
-    
-    // Кнопка "Назад" (если есть)
-    const backBtn = document.getElementById('backBtn');
-    if(backBtn) {
-        backBtn.addEventListener('click', function() {
-            // На первой странице эта кнопка может вести на главную или статистику
-            window.location.href = 'statistics.html';
-        });
-    }
-}
-
-async function loadUsers() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/users`);
-        const users = await response.json();
-        
-        const container = document.getElementById('userList');
-        container.innerHTML = '';
-        
-        users.forEach(user => {
-            const userElement = document.createElement('div');
-            userElement.className = 'user-item';
-            userElement.dataset.id = user.id;
-            userElement.dataset.username = user.username;
-            userElement.textContent = user.username;
-            
-            // Проверяем, не является ли это текущим пользователем
-            const storedUser = localStorage.getItem('currentUser');
-            if(storedUser) {
-                const parsedUser = JSON.parse(storedUser);
-                if(parsedUser.id === user.id) {
-                    currentUser = parsedUser;
-                    userElement.classList.add('selected');
-                }
-            }
-            
-            container.appendChild(userElement);
-        });
-    } catch(error) {
-        console.error('Error loading users:', error);
-    }
-}
-
-// Страница 2: Выбор материала
-async function initMaterialSelection() {
-    // Загружаем текущего пользователя
-    const storedUser = localStorage.getItem('currentUser');
-    if(storedUser) {
-        currentUser = JSON.parse(storedUser);
-    } else {
-        // Если пользователь не выбран, возвращаем на первую страницу
-        window.location.href = 'user_selection.html';
-        return;
-    }
-    
-    // Загружаем материалы
-    await loadMaterials();
-    
-    // Обработчик выбора материала
-    document.querySelectorAll('.material-card').forEach(card => {
-        card.addEventListener('click', function() {
-            document.querySelectorAll('.material-card').forEach(c => c.classList.remove('selected'));
-            this.classList.add('selected');
-            
-            const materialId = this.dataset.id;
-            selectedMaterial = materials.find(m => m.id == materialId);
-            
-            // Сохраняем в localStorage
-            localStorage.setItem('selectedMaterial', JSON.stringify(selectedMaterial));
-        });
-    });
-    
-    // Обработчик кнопки "Далее"
-    document.getElementById('nextBtn').addEventListener('click', function() {
-        if(!selectedMaterial) {
-            alert('Выберите материал');
-            return;
-        }
-        
-        window.location.href = 'instructions.html';
-    });
-    
-    // Кнопка "Назад"
-    document.getElementById('backBtn').addEventListener('click', function() {
-        window.location.href = 'user_selection.html';
-    });
-}
-
-async function loadMaterials() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/materials`);
-        materials = await response.json();
-        
-        const container = document.getElementById('materialsContainer');
-        container.innerHTML = '';
-        
-        materials.forEach(material => {
-            const card = document.createElement('div');
-            card.className = 'material-card';
-            card.dataset.id = material.id;
-            
-            card.innerHTML = `
-                <div class="material-title">${material.name}</div>
-                <div class="material-description">${material.description}</div>
-                <div class="material-example">${material.example}</div>
-            `;
-            
-            container.appendChild(card);
-        });
-        
-        // Проверяем, не был ли материал выбран ранее
-        const storedMaterial = localStorage.getItem('selectedMaterial');
-        if(storedMaterial) {
-            const parsedMaterial = JSON.parse(storedMaterial);
-            const materialCard = document.querySelector(`.material-card[data-id="${parsedMaterial.id}"]`);
-            if(materialCard) {
-                materialCard.click();
-            }
-        }
-    } catch(error) {
-        console.error('Error loading materials:', error);
-    }
-}
-
-// Страница 3: Инструкции
-function initInstructionsPage() {
-    // Загружаем выбранный материал
-    const storedMaterial = localStorage.getItem('selectedMaterial');
-    if(!storedMaterial) {
-        window.location.href = 'material_selection.html';
-        return;
-    }
-    
-    selectedMaterial = JSON.parse(storedMaterial);
-    
-    // Отображаем инструкции
-    document.getElementById('materialName').textContent = selectedMaterial.name;
-    document.getElementById('instructionsText').textContent = selectedMaterial.instructions;
-    document.getElementById('restrictionsText').textContent = selectedMaterial.restrictions;
-    
-    // Обработчик кнопки "Есть триггер"
-    document.getElementById('hasTriggerBtn').addEventListener('click', function() {
-        if(confirm('Вы уверены, что у предмета есть особенности, запрещающие утилизацию?')) {
-            window.location.href = 'user_selection.html';
-        }
-    });
-    
-    // Обработчик кнопки "Далее"
-    document.getElementById('nextBtn').addEventListener('click', async function() {
-        // Регистрируем утилизацию
-        try {
-            await fetch(`${API_BASE_URL}/dispose`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: currentUser.id,
-                    material_id: selectedMaterial.id
-                })
-            });
-            
-            // Переходим к статистике
-            window.location.href = 'statistics.html';
-            
-        } catch(error) {
-            console.error('Error recording disposal:', error);
-            alert('Ошибка при сохранении данных');
-        }
-    });
-    
-    // Кнопка "Назад"
-    document.getElementById('backBtn').addEventListener('click', function() {
-        window.location.href = 'material_selection.html';
-    });
-}
-
-// Страница 4: Статистика
-async function initStatisticsPage() {
-    // Загружаем текущего пользователя
-    const storedUser = localStorage.getItem('currentUser');
-    if(!storedUser) {
-        window.location.href = 'user_selection.html';
-        return;
-    }
-    
-    currentUser = JSON.parse(storedUser);
-    
-    // Загружаем статистику
-    await loadStatistics();
-    
-    // Генерация комплимента
-    generateCompliment();
-    
-    // Обработчик кнопки "Далее"
-    document.getElementById('nextBtn').addEventListener('click', function() {
-        window.location.href = 'user_selection.html';
-    });
-    
-    // Кнопка "Назад"
-    document.getElementById('backBtn').addEventListener('click', function() {
-        window.location.href = 'instructions.html';
-    });
-}
-
-async function loadStatistics() {
-    try {
-        const response = await fetch(`${API_BASE_URL}/statistics/${currentUser.id}`);
-        const stats = await response.json();
-        
-        // Отображаем общую статистику
-        document.getElementById('totalDisposals').textContent = stats.total;
-        document.getElementById('yearlyDisposals').textContent = stats.yearly;
-        document.getElementById('monthlyDisposals').textContent = stats.monthly;
-        
-        // Отображаем разбивку по материалам
-        const breakdownContainer = document.getElementById('materialsBreakdown');
-        breakdownContainer.innerHTML = '';
-        
-        if(stats.by_material && Object.keys(stats.by_material).length > 0) {
-            for(const [material, count] of Object.entries(stats.by_material)) {
-                const item = document.createElement('div');
-                item.className = 'breakdown-item';
-                item.innerHTML = `
-                    <span>${material}</span>
-                    <span class="stat-value">${count}</span>
-                `;
-                breakdownContainer.appendChild(item);
-            }
-        } else {
-            breakdownContainer.innerHTML = '<p style="text-align: center; color: #666;">Нет данных об утилизации</p>';
-        }
-        
-    } catch(error) {
-        console.error('Error loading statistics:', error);
-        document.getElementById('totalDisposals').textContent = '0';
-        document.getElementById('yearlyDisposals').textContent = '0';
-        document.getElementById('monthlyDisposals').textContent = '0';
-    }
-}
-
-function generateCompliment() {
-    const compliments = [
-        "Спасибо, что правильно утилизировали отходы! Планета благодарна вам.",
-        "Каждая правильная сортировка — шаг к чистой Земле. Вы молодец!",
-        "Деревья кланяются вам в ноги за спасённую бумагу!",
-        "Благодаря вам меньше мусора попадает на свалки. Продолжайте в том же духе!",
-        "Ваш вклад в экологию бесценен. Спасибо за сознательность!",
-        "Сортируя мусор, вы создаёте лучшее будущее. Так держать!",
-        "Один человек может изменить мир. Вы — тот самый человек!"
-    ];
-    
-    const randomCompliment = compliments[Math.floor(Math.random() * compliments.length)];
-    document.getElementById('complimentText').textContent = randomCompliment;
-}
+// Глобальные функции для кнопок в HTML
+window.goToPage = goToPage;
+window.goBack = function() {
+    window.history.back();
+};
+window.deleteUser = deleteUser;
+window.getUserStatistics = getUserStatistics;
