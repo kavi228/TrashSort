@@ -138,7 +138,13 @@ function getUserStatistics(userId) {
 // ========== СТРАНИЦА 1: ВЫБОР ПОЛЬЗОВАТЕЛЯ ==========
 function initUserSelection() {
     console.log('Инициализация страницы выбора пользователя');
+    if (window.userSelectionInitialized) {
+        console.log('Страница уже инициализирована');
+        return;
+    }
+    window.userSelectionInitialized = true;
     
+    console.log('Инициализация страницы выбора пользователя');
     const userList = document.getElementById('userList');
     const addUserBtn = document.getElementById('addUserBtn');
     const nextBtn = document.getElementById('nextBtn');
