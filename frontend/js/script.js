@@ -575,7 +575,7 @@ function initInstructionsPage() {
         };
     }
 }
-
+// ========== СТРАНИЦА 4: СТАТИСТИКА =========
 // ========== СТРАНИЦА 4: СТАТИСТИКА (ОБНОВЛЕННАЯ) ==========
 function initStatisticsPage() {
     console.log('Инициализация страницы статистики');
@@ -816,25 +816,22 @@ function initStatisticsPage() {
         goToPage('material_selection.html');
     };
     
+    // ========== СОЗДАЕМ КОНТЕЙНЕР ДЛЯ КНОПОК ==========
+    const actionButtonsContainer = document.createElement('div');
+    actionButtonsContainer.className = 'action-buttons';
+    actionButtonsContainer.style.cssText = `
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 20px;
+        justify-content: center;
+    `;
+    
     // Добавляем кнопки в контейнер
-    const actionButtons = document.querySelector('.action-buttons');
-    if (actionButtons) {
-        // Очищаем контейнер и добавляем новые кнопки
-        actionButtons.innerHTML = '';
-
-        actionButtons.appendChild(resetBtn);        // Сначала кнопка сброса
-        actionButtons.appendChild(quickContinueBtn); // Потом кнопка продолжения
-    }
+    actionButtonsContainer.appendChild(resetBtn);
+    actionButtonsContainer.appendChild(quickContinueBtn);
     
-    // ========== ДОБАВЛЯЕМ ДОПОЛНИТЕЛЬНУЮ ИНФОРМАЦИЮ ==========
-    const additionalInfo = document.createElement('div');
-    additionalInfo.className = 'instructions-section';
-    additionalInfo.style.marginTop = '40px';
-    additionalInfo.style.padding = '20px';
-    additionalInfo.style.backgroundColor = 'rgba(255, 215, 0, 0.05)';
-    additionalInfo.style.borderRadius = '10px';
-    additionalInfo.style.border = '1px solid rgba(255, 215, 0, 0.2)';
-    
+    // ========== ЭКОЛОГИЧЕСКИЙ ВКЛАД ==========
     let ecoImpactMessage = '';
     if (stats.total > 0) {
         // Рассчитываем экологический вклад
@@ -845,43 +842,107 @@ function initStatisticsPage() {
         const waterSaved = (stats.byMaterial['Бумага'] || 0) * 50;
         
         ecoImpactMessage = `
-            <h3 class="section-title">🌱 Ваш экологический вклад:</h3>
-            <div class="instructions-content" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                ${treesSaved > 0 ? `<div style="text-align: center; padding: 10px; background: rgba(76, 175, 80, 0.1); border-radius: 5px;">
-                    <div style="font-size: 1.8rem;">🌳</div>
-                    <div style="font-weight: bold; color: #4CAF50;">${treesSaved}</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">деревьев спасено</div>
-                </div>` : ''}
-                
-                ${energySaved > 0 ? `<div style="text-align: center; padding: 10px; background: rgba(255, 193, 7, 0.1); border-radius: 5px;">
-                    <div style="font-size: 1.8rem;">⚡</div>
-                    <div style="font-weight: bold; color: #FFC107;">${energySaved} кВт•ч</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">энергии сэкономлено</div>
-                </div>` : ''}
-                
-                ${waterSaved > 0 ? `<div style="text-align: center; padding: 10px; background: rgba(33, 150, 243, 0.1); border-radius: 5px;">
-                    <div style="font-size: 1.8rem;">💧</div>
-                    <div style="font-weight: bold; color: #2196F3;">${waterSaved} л</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">воды сохранено</div>
-                </div>` : ''}
-                
-                <div style="text-align: center; padding: 10px; background: rgba(255, 87, 34, 0.1); border-radius: 5px;">
-                    <div style="font-size: 1.8rem;">📊</div>
-                    <div style="font-weight: bold; color: #FF5722;">${stats.total}</div>
-                    <div style="font-size: 0.9rem; color: #ccc;">всего утилизаций</div>
+            <div class="eco-impact-section" style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 10px;">
+                <h3 style="text-align: center; color: #ffed4e; margin-bottom: 20px;">🌱 Ваш экологический вклад</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    ${treesSaved > 0 ? `<div style="text-align: center; padding: 15px; background: rgba(76, 175, 80, 0.1); border-radius: 8px; border: 1px solid rgba(76, 175, 80, 0.3);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">🌳</div>
+                        <div style="font-weight: bold; color: #4CAF50; font-size: 1.5rem;">${treesSaved}</div>
+                        <div style="font-size: 0.9rem; color: #ccc;">деревьев спасено</div>
+                    </div>` : ''}
+                    
+                    ${energySaved > 0 ? `<div style="text-align: center; padding: 15px; background: rgba(255, 193, 7, 0.1); border-radius: 8px; border: 1px solid rgba(255, 193, 7, 0.3);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">⚡</div>
+                        <div style="font-weight: bold; color: #FFC107; font-size: 1.5rem;">${Math.round(energySaved)} кВт•ч</div>
+                        <div style="font-size: 0.9rem; color: #ccc;">энергии сэкономлено</div>
+                    </div>` : ''}
+                    
+                    ${waterSaved > 0 ? `<div style="text-align: center; padding: 15px; background: rgba(33, 150, 243, 0.1); border-radius: 8px; border: 1px solid rgba(33, 150, 243, 0.3);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">💧</div>
+                        <div style="font-weight: bold; color: #2196F3; font-size: 1.5rem;">${waterSaved} л</div>
+                        <div style="font-size: 0.9rem; color: #ccc;">воды сохранено</div>
+                    </div>` : ''}
+                    
+                    <div style="text-align: center; padding: 15px; background: rgba(255, 87, 34, 0.1); border-radius: 8px; border: 1px solid rgba(255, 87, 34, 0.3);">
+                        <div style="font-size: 2rem; margin-bottom: 10px;">📊</div>
+                        <div style="font-weight: bold; color: #FF5722; font-size: 1.5rem;">${stats.total}</div>
+                        <div style="font-size: 0.9rem; color: #ccc;">всего утилизаций</div>
+                    </div>
                 </div>
             </div>
         `;
     }
     
-    additionalInfo.innerHTML = ecoImpactMessage;
+    // ========== ДОБАВЛЯЕМ ВСЕ ЭЛЕМЕНТЫ НА СТРАНИЦУ ==========
     
-    // Вставляем дополнительную информацию перед футером
-    const statsContainer = document.querySelector('.stats-container');
-    if (statsContainer) {
-        statsContainer.appendChild(additionalInfo);
+    // 1. Ищем существующий контейнер .action-buttons
+    const existingActionButtons = document.querySelector('.action-buttons');
+    if (existingActionButtons) {
+        // Очищаем и заменяем содержимое
+        existingActionButtons.innerHTML = '';
+        existingActionButtons.style.cssText = actionButtonsContainer.style.cssText;
+        existingActionButtons.appendChild(resetBtn);
+        existingActionButtons.appendChild(quickContinueBtn);
+    } else {
+        // Создаем новый контейнер
+        document.querySelector('.stats-container, .container, .content-container')?.appendChild(actionButtonsContainer);
+    }
+    
+    // 2. Добавляем экологический вклад В САМЫЙ НИЗ
+    if (ecoImpactMessage) {
+        // Ждем немного чтобы DOM полностью загрузился
+        setTimeout(() => {
+            // Создаем секцию
+            const ecoSection = document.createElement('div');
+            ecoSection.className = 'eco-impact-section';
+            ecoSection.innerHTML = ecoImpactMessage;
+            
+            // Создаем разделитель
+            const separator = document.createElement('hr');
+            separator.style.cssText = `
+                margin: 40px 0 30px 0;
+                border: none;
+                height: 2px;
+                background: linear-gradient(to right, transparent, rgba(255, 215, 0, 0.4), transparent);
+                width: 80%;
+                margin-left: auto;
+                margin-right: auto;
+            `;
+            
+            // Ищем все существующие элементы с классом eco-impact-section и удаляем их
+            document.querySelectorAll('.eco-impact-section').forEach(el => el.remove());
+            
+            // Ищем, куда вставить (пробуем разные контейнеры)
+            const possibleContainers = [
+                document.querySelector('.stats-container'),
+                document.querySelector('.container'),
+                document.querySelector('.content-container'),
+                document.querySelector('main'),
+                document.body
+            ];
+            
+            let targetContainer = null;
+            for (const container of possibleContainers) {
+                if (container) {
+                    targetContainer = container;
+                    break;
+                }
+            }
+            
+            if (targetContainer) {
+                // Вставляем В САМЫЙ КОНЕЦ контейнера
+                targetContainer.appendChild(separator);
+                targetContainer.appendChild(ecoSection);
+                
+                // Добавляем небольшой отступ снизу
+                const bottomSpacing = document.createElement('div');
+                bottomSpacing.style.height = '30px';
+                targetContainer.appendChild(bottomSpacing);
+            }
+        }, 10); // Небольшая задержка для гарантии
     }
 }
+
 
 // ========== СТРАНИЦА 5: МОТИВАЦИЯ ==========
 function initMotivationPage() {
