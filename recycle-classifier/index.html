@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashSort - Классификатор мусора</title>
+    <style>
+        /* Основные стили */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        /* Шапка и навигация */
+        header {
+            background-color: #ffffff;
+            padding: 15px 0;
+            border-bottom: 2px solid #ffd700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333333;
+        }
+
+        .nav-button {
+            font-size: 1.1rem;
+            background-color: #ffd700;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover {
+            background-color: #ffed4e;
+            transform: scale(1.05);
+        }
+
+        /* Основной контент */
+        main {
+            flex: 1;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333333;
+        }
+
+        /* Контент классификатора */
+        .classifier-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .classifier-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .upload-section {
+            background-color: #ffffff;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .results-section {
+            background-color: #ffffff;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #333333;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        /* Область загрузки */
+        .upload-area {
+            border: 2px dashed #ffd700;
+            border-radius: 10px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+            background-color: #f8f9fa;
+        }
+
+        .upload-area:hover {
+            background-color: #fff9e6;
+            border-color: #ffcc00;
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+
+        .upload-subtext {
+            color: #666666;
+            font-size: 0.9rem;
+        }
+
+        #imagePreview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+            margin: 0 auto 20px;
+            border: 2px solid #ffd700;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Элементы управления */
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+
+        .btn-primary {
+            background-color: #ffd700;
+            color: #000000;
+            flex: 2;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background-color: #ffed4e;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #333333;
+            border: 2px solid #ffd700;
+            flex: 1;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        /* Индикатор загрузки */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-radius: 50%;
+            border-top: 4px solid #ffd700;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Контейнеры */
+        .container-types {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 480px) {
+            .container-types {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .container-type {
+            background-color: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .container-type.active {
+            background-color: #fff9e6;
+            border-color: #ffd700;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .container-type h4 {
+            color: #333333;
+            margin-bottom: 5px;
+            font-size: 1rem;
+        }
+
+        .container-type p {
+            font-size: 0.85rem;
+            color: #666666;
+        }
+
+        /* Результаты */
+        .initial-message {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            text-align: center;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        .initial-message h3 {
+            color: #333333;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .result-card {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            border-left: 4px solid #ffd700;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .container-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .container-icon {
+            font-size: 2rem;
+            margin-right: 15px;
+            color: #ffd700;
+        }
+
+        .result-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: #333333;
+        }
+
+        .confidence {
+            font-size: 1.1rem;
+            color: #333333;
+            font-weight: 600;
+        }
+
+        .confidence span {
+            color: #ff9900;
+        }
+
+        .description {
+            background-color: #ffffff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .description h4 {
+            color: #333333;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        .description ul {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+
+        .description li {
+            margin-bottom: 8px;
+            color: #666666;
+        }
+
+        .description .positive {
+            color: #228B22;
+        }
+
+        .description .negative {
+            color: #DC143C;
+        }
+
+        /* Футер */
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-top: 2px solid #ffd700;
+            margin-top: 40px;
+            color: #333333;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .upload-section, .results-section {
+                padding: 20px;
+            }
+        }
+    </style>
+    <!-- TensorFlow.js и Teachable Machine -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.7.4/dist/tf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">♻️ TrashSort - Классификатор</div>
+                <button class="nav-button" onclick="window.history.back()">← Назад</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Классификатор мусора</h1>
+            
+            <div class="classifier-container">
+                <!-- Левая панель: Загрузка изображения -->
+                <div class="upload-section">
+                    <h2 class="section-title">Загрузите изображение</h2>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📷</div>
+                        <div class="upload-text">Нажмите или перетащите фотографию мусора</div>
+                        <div class="upload-subtext">Поддерживаются JPG, PNG, WebP. Макс. 5MB</div>
+                    </div>
+                    
+                    <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                    
+                    <img id="imagePreview" alt="Предпросмотр изображения">
+                    
+                    <div class="controls">
+                        <button id="predictBtn" class="btn-primary" disabled>Определить тип мусора</button>
+                        <button id="resetBtn" class="btn-secondary">Сбросить</button>
+                    </div>
+                    
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p>Анализируем изображение...</p>
+                    </div>
+                    
+                    <div class="container-types">
+                        <div class="container-type" id="container1">
+                            <h4>Контейнер 1</h4>
+                            <p>ПЭТ-бутылки</p>
+                        </div>
+                        <div class="container-type" id="container2">
+                            <h4>Контейнер 2</h4>
+                            <p>Бытовой пластик</p>
+                        </div>
+                        <div class="container-type" id="container3">
+                            <h4>Контейнер 3</h4>
+                            <p>Пищевой пластик</p>
+                        </div>
+                        <div class="container-type" id="container4">
+                            <h4>Контейнер 4</h4>
+                            <p>Пенопласт</p>
+                        </div>
+                        <div class="container-type" id="container5">
+                            <h4>Контейнер 5</h4>
+                            <p>Картон, бумага</p>
+                        </div>
+                        <div class="container-type" id="container6">
+                            <h4>Контейнер 6</h4>
+                            <p>Стекло</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Правая панель: Результаты -->
+                <div class="results-section">
+                    <h2 class="section-title">Результат классификации</h2>
+                    
+                    <div id="resultsContainer">
+                        <div class="initial-message">
+                            <h3>Как использовать классификатор</h3>
+                            <p>1. Загрузите фотографию мусора, нажав на область загрузки</p>
+                            <p>2. Нажмите кнопку "Определить тип мусора"</p>
+                            <p>3. ИИ определит подходящий контейнер</p>
+                            <p>4. Ознакомьтесь с инструкциями по утилизации</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>♻️ Система сортировки мусора TrashSort © 2025 | Использует модель Teachable Machine</p>
+        </div>
+    </footer>
+
+    <script>
+        // DOM элементы
+        const uploadArea = document.getElementById('uploadArea');
+        const imageInput = document.getElementById('imageInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const predictBtn = document.getElementById('predictBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const loading = document.getElementById('loading');
+        const resultsContainer = document.getElementById('resultsContainer');
+        const containerTypes = document.querySelectorAll('.container-type');
+        
+        // Модель и метаданные
+        let model, maxPredictions;
+        const modelURL = './model.json';
+        const metadataURL = './metadata.json';
+        
+        // Описания контейнеров
+        const containerDescriptions = {
+            "Class 1": {
+                title: "Контейнер 1: ПЭТ-бутылки",
+                positive: [
+                    "Пищевые прозрачные бутылки",
+                    "Смятые бутылки",
+                    "Бутылки с крышкой",
+                    "Без остатков органики"
+                ],
+                negative: [
+                    "Белые непрозрачные бутылки",
+                    "Контейнеры и стаканы",
+                    "Бутылки из-под масла",
+                    "Непищевая упаковка"
+                ]
+            },
+            "Class 2": {
+                title: "Контейнер 2: Бытовой пластик",
+                positive: [
+                    "Пищевой и непищевой пластик",
+                    "Любого цвета",
+                    "Смятые ёмкости",
+                    "Пупырчатая плёнка",
+                    "Плотные пакеты и плёнки"
+                ],
+                negative: [
+                    "Без маркировки",
+                    "Со скотчем",
+                    "С остатками пищи"
+                ]
+            },
+            "Class 3": {
+                title: "Контейнер 3: Пищевой пластик",
+                positive: [
+                    "Чистые ёмкости",
+                    "Без наклеек",
+                    "С цветной печатью на пластике",
+                    "Твёрдые ёмкости"
+                ],
+                negative: [
+                    "С термоусадочной плёнкой",
+                    "Пакеты с маркировкой",
+                    "Крупные ёмкости (вёдра, тазы)"
+                ]
+            },
+            "Class 4": {
+                title: "Контейнер 4: Пенопласт",
+                positive: [
+                    "Упаковка от мебели",
+                    "Упаковка от техники",
+                    "Строительный пенопласт",
+                    "Упаковочный пенопласт",
+                    "Яичные лотки"
+                ],
+                negative: [
+                    "Пенопласт из-под еды",
+                    "Загрязнённый пенопласт"
+                ]
+            },
+            "Class 5": {
+                title: "Контейнер 5: Картон и бумага",
+                positive: [
+                    "Картонные коробки",
+                    "Газеты и журналы",
+                    "Офисная бумага",
+                    "Бумажные пакеты"
+                ],
+                negative: [
+                    "Загрязнённая бумага",
+                    "Вощёная бумага",
+                    "Бумажные стаканчики",
+                    "Фольгированная бумага"
+                ]
+            },
+            "Class 6": {
+                title: "Контейнер 6: Стекло",
+                positive: [
+                    "Стеклянные бутылки",
+                    "Стеклянные банки",
+                    "Прозрачное стекло",
+                    "Цветное стекло"
+                ],
+                negative: [
+                    "Керамика и фарфор",
+                    "Лампочки",
+                    "Зеркала",
+                    "Автомобильное стекло"
+                ]
+            }
+        };
+        
+        // Загрузка модели
+        async function init() {
+            try {
+                console.log("Загрузка модели...");
+                model = await tmImage.load(modelURL, metadataURL);
+                maxPredictions = model.getTotalClasses();
+                console.log("Модель загружена успешно");
+                console.log("Количество классов:", maxPredictions);
+                
+                const labels = model.getClassLabels();
+                console.log("Метки классов:", labels);
+            } catch (error) {
+                console.error("Ошибка загрузки модели:", error);
+                alert("Не удалось загрузить модель. Убедитесь, что файлы model.json и metadata.json находятся в той же папке.");
+            }
+        }
+        
+        // Инициализация при загрузке страницы
+        init();
+        
+        // Обработчики событий для загрузки изображения
+        uploadArea.addEventListener('click', () => {
+            imageInput.click();
+        });
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#fff9e6';
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.style.backgroundColor = '#f8f9fa';
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#f8f9fa';
+            
+            if (e.dataTransfer.files.length) {
+                const file = e.dataTransfer.files[0];
+                if (file.type.startsWith('image/')) {
+                    handleImage(file);
+                } else {
+                    alert('Пожалуйста, загрузите файл изображения (JPG, PNG, WebP)');
+                }
+            }
+        });
+        
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length) {
+                const file = e.target.files[0];
+                handleImage(file);
+            }
+        });
+        
+        // Обработка загруженного изображения
+        function handleImage(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Пожалуйста, загрузите файл изображения (JPG, PNG, WebP)');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                imagePreview.src = e.target.result;
+                imagePreview.style.display = 'block';
+                predictBtn.disabled = false;
+                
+                // Сбрасываем предыдущие результаты
+                resetContainerHighlights();
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Классификация изображения
+        predictBtn.addEventListener('click', async () => {
+            if (!imagePreview.src || !model) {
+                alert('Сначала загрузите изображение и убедитесь, что модель загружена');
+                return;
+            }
+            
+            loading.style.display = 'block';
+            predictBtn.disabled = true;
+            
+            try {
+                const image = new Image();
+                image.src = imagePreview.src;
+                
+                await new Promise((resolve) => {
+                    image.onload = resolve;
+                });
+                
+                const prediction = await model.predict(image);
+                displayResults(prediction);
+                
+            } catch (error) {
+                console.error('Ошибка классификации:', error);
+                alert('Произошла ошибка при классификации изображения. Попробуйте еще раз.');
+            } finally {
+                loading.style.display = 'none';
+                predictBtn.disabled = false;
+            }
+        });
+        
+        // Отображение результатов
+        function displayResults(predictions) {
+            predictions.sort((a, b) => b.probability - a.probability);
+            const bestPrediction = predictions[0];
+            const className = bestPrediction.className;
+            const confidence = Math.round(bestPrediction.probability * 100);
+            
+            const description = containerDescriptions[className] || containerDescriptions["Class 1"];
+            
+            const resultElement = document.createElement('div');
+            resultElement.className = 'result-card';
+            
+            resultElement.innerHTML = `
+                <div class="container-info">
+                    <div class="container-icon">🗑️</div>
+                    <div>
+                        <h3 class="result-title">${description.title}</h3>
+                        <div class="confidence">Точность: <span>${confidence}%</span></div>
+                    </div>
+                </div>
+                
+                <div class="description">
+                    <h4>Что можно выбрасывать:</h4>
+                    <ul>
+                        ${description.positive.map(item => `<li class="positive">${item}</li>`).join('')}
+                    </ul>
+                    
+                    <h4>Что нельзя выбрасывать:</h4>
+                    <ul>
+                        ${description.negative.map(item => `<li class="negative">${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            resultsContainer.innerHTML = '';
+            resultsContainer.appendChild(resultElement);
+            
+            highlightContainer(className);
+            
+            console.log("Все предсказания:");
+            predictions.forEach(pred => {
+                console.log(`${pred.className}: ${Math.round(pred.probability * 100)}%`);
+            });
+        }
+        
+        // Подсветка соответствующего контейнера
+        function highlightContainer(className) {
+            resetContainerHighlights();
+            
+            const containerIndex = parseInt(className.split(' ')[1]);
+            
+            if (containerIndex >= 1 && containerIndex <= 6) {
+                const containerElement = document.getElementById(`container${containerIndex}`);
+                if (containerElement) {
+                    containerElement.classList.add('active');
+                }
+            }
+        }
+        
+        // Сброс подсветки контейнеров
+        function resetContainerHighlights() {
+            containerTypes.forEach(container => {
+                container.classList.remove('active');
+            });
+        }
+        
+        // Сброс приложения
+        resetBtn.addEventListener('click', () => {
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+            imageInput.value = '';
+            predictBtn.disabled = true;
+            resultsContainer.innerHTML = `
+                <div class="initial-message">
+                    <h3>Как использовать классификатор</h3>
+                    <p>1. Загрузите фотографию мусора, нажав на область загрузки</p>
+                    <p>2. Нажмите кнопку "Определить тип мусора"</p>
+                    <p>3. ИИ определит подходящий контейнер</p>
+                    <p>4. Ознакомьтесь с инструкциями по утилизации</p>
+                </div>
+            `;
+            resetContainerHighlights();
+        });
+        
+        // Инициализация информации о контейнерах
+        function initContainerInfo() {
+            const containerElements = {
+                "container1": containerDescriptions["Class 1"],
+                "container2": containerDescriptions["Class 2"],
+                "container3": containerDescriptions["Class 3"],
+                "container4": containerDescriptions["Class 4"],
+                "container5": containerDescriptions["Class 5"],
+                "container6": containerDescriptions["Class 6"]
+            };
+            
+            for (const [containerId, description] of Object.entries(containerElements)) {
+                const containerElement = document.getElementById(containerId);
+                if (containerElement) {
+                    containerElement.title = description.title;
+                }
+            }
+        }
+        
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', () => {
+            initContainerInfo();
+        });
+    </script>
+</body>
+</html>
