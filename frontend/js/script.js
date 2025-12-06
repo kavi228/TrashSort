@@ -1,5 +1,5 @@
 // УПРОЩЕННАЯ ВЕРСИЯ 2.0 - С УДАЛЕНИЕМ ПОЛЬЗОВАТЕЛЕЙ И ИНДИВИДУАЛЬНОЙ СТАТИСТИКОЙ
-console.log('TrashSort JS loaded - Версия 2.2 с поиском пользователей');
+console.log('TrashSort JS loaded - Версия 2.4 с улучшенным дизайном');
 
 // ========== ДАННЫЕ МАТЕРИАЛОВ ==========
 const materials = [
@@ -56,44 +56,33 @@ const materials = [
 // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let currentUser = null;
 let selectedMaterial = null;
-let allUsers = []; // Будет хранить всех пользователей для поиска
+let allUsers = [];
 
 // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 
-// Сохранить в localStorage
 function saveData(key, value) {
     localStorage.setItem(key, JSON.stringify(value));
 }
 
-// Загрузить из localStorage
 function loadData(key) {
     const data = localStorage.getItem(key);
     return data ? JSON.parse(data) : null;
 }
 
-// Перейти на страницу
 function goToPage(page) {
     window.location.href = page;
 }
 
-// Удалить пользователя
 function deleteUser(userId) {
-    // Загружаем пользователей
     let users = loadData('trashsort_users') || [];
-    
-    // Фильтруем удаляемого пользователя
     users = users.filter(user => user.id !== userId);
-    
-    // Сохраняем обновленный список
     saveData('trashsort_users', users);
     
-    // Если удаляем текущего пользователя, сбрасываем его
     if (currentUser && currentUser.id === userId) {
         currentUser = null;
         localStorage.removeItem('currentUser');
     }
     
-    // Удаляем все утилизации этого пользователя
     let disposals = loadData('trashsort_disposals') || [];
     disposals = disposals.filter(d => d.user_id !== userId);
     saveData('trashsort_disposals', disposals);
@@ -101,15 +90,9 @@ function deleteUser(userId) {
     return users;
 }
 
-// Получить статистику для конкретного пользователя
 function getUserStatistics(userId) {
-    // Загружаем все утилизации
     const disposals = loadData('trashsort_disposals') || [];
-    
-    // Фильтруем по пользователю
     const userDisposals = disposals.filter(d => d.user_id === userId);
-    
-    // Рассчитываем статистику
     const total = userDisposals.length;
     
     const now = new Date();
@@ -119,68 +102,51 @@ function getUserStatistics(userId) {
     const yearly = userDisposals.filter(d => new Date(d.timestamp) > oneYearAgo).length;
     const monthly = userDisposals.filter(d => new Date(d.timestamp) > oneMonthAgo).length;
     
-    // Разбивка по материалам
     const byMaterial = {};
     userDisposals.forEach(d => {
         const materialName = d.material_name || "Неизвестно";
         byMaterial[materialName] = (byMaterial[materialName] || 0) + 1;
     });
     
-    return {
-        total,
-        yearly,
-        monthly,
-        byMaterial,
-        userDisposals
-    };
+    return { total, yearly, monthly, byMaterial, userDisposals };
 }
 
-// ========== СТРАНИЦА 1: ВЫБОР ПОЛЬЗОВАТЕЛЯ ==========
+// ========== СТРАНИЦА 1: ВЫБОР ПОЛЬЗОВАТЕЛЯ (КОМПАКТНЫЙ) ==========
 function initUserSelection() {
     console.log('Инициализация страницы выбора пользователя');
     const userList = document.getElementById('userList');
     const addUserBtn = document.getElementById('addUserBtn');
     const nextBtn = document.getElementById('nextBtn');
     const backBtn = document.getElementById('backBtn');
+    const searchContainer = document.getElementById('searchContainer');
     
     if (!userList) return;
     
-    // Загружаем пользователей из localStorage
+    // Загружаем пользователей
     allUsers = loadData('trashsort_users') || [
         { id: 1, username: "Алексей" },
         { id: 2, username: "Мария" },
         { id: 3, username: "Дмитрий" }
     ];
     
-    // Создаем контейнер для поиска с иконкой лупы
-    const searchContainer = document.createElement('div');
-    searchContainer.className = 'search-container';
-    searchContainer.style.cssText = `
-        margin-bottom: 20px;
-        width: 100%;
-        position: relative;
-    `;
-    
-    searchContainer.innerHTML = `
-        <div style="position: relative;">
-            <input type="text" 
-                   id="userSearch" 
-                   class="add-user-input" 
-                   placeholder="Поиск пользователей..."
-                   style="width: 100%; margin-bottom: 10px; padding-left: 40px;">
-            <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.2rem;">
+    // Создаем поиск
+    if (searchContainer) {
+        searchContainer.innerHTML = `
+            <div style="position: relative; width: 100%;">
+                <input type="text" 
+                       id="userSearch" 
+                       class="add-user-input" 
+                       placeholder="🔍 Поиск пользователей..."
+                       style="width: 100%; margin-bottom: 10px; padding-left: 40px;">
             </div>
-        </div>
-    `;
-    
-    // Вставляем поиск перед списком пользователей
-    userList.parentNode.insertBefore(searchContainer, userList);
+        `;
+    }
     
     // Отображаем пользователей с фильтрацией
     function renderUsers(searchTerm = '') {
         userList.innerHTML = '';
         
-        // Фильтруем пользователей по поисковому запросу
+        // Фильтруем пользователей
         let filteredUsers = allUsers;
         if (searchTerm.trim() !== '') {
             const term = searchTerm.toLowerCase();
@@ -210,11 +176,7 @@ function initUserSelection() {
             emptyMsg.className = 'user-item';
             emptyMsg.style.textAlign = 'center';
             emptyMsg.style.color = '#666';
-            
-            if (searchTerm.trim() == '') {
-                emptyMsg.textContent = 'Нет пользователей. Добавьте первого!';
-            }
-            
+            emptyMsg.textContent = searchTerm.trim() === '' ? 'Нет пользователей. Добавьте первого!' : 'Пользователи не найдены';
             userList.appendChild(emptyMsg);
             return;
         }
@@ -246,7 +208,7 @@ function initUserSelection() {
                     <button class="delete-user-btn" data-id="${user.id}" 
                             style="background: #ff3333; color: white; border: none; 
                                    border-radius: 3px; padding: 3px 8px; cursor: pointer;
-                                   font-size: 12px;">
+                                   font-size: 12px; min-width: 70px;">
                         Удалить
                     </button>
                 </div>
@@ -254,16 +216,11 @@ function initUserSelection() {
             
             // Обработчик выбора пользователя
             userItem.onclick = function(e) {
-                // Если кликнули по кнопке удаления - не выбираем пользователя
-                if (e.target.classList.contains('delete-user-btn')) {
-                    return;
-                }
+                if (e.target.classList.contains('delete-user-btn')) return;
                 
-                // Убираем выделение у всех
                 document.querySelectorAll('.user-item').forEach(item => {
                     item.classList.remove('selected');
                 });
-                // Выделяем текущего
                 this.classList.add('selected');
                 currentUser = user;
                 saveData('currentUser', user);
@@ -276,22 +233,16 @@ function initUserSelection() {
         // Добавляем обработчики для кнопок удаления
         document.querySelectorAll('.delete-user-btn').forEach(btn => {
             btn.onclick = function(e) {
-                e.stopPropagation(); // Останавливаем всплытие события
+                e.stopPropagation();
                 const userId = parseInt(this.dataset.id);
                 const userName = this.closest('.user-item').querySelector('span').textContent;
                 
                 if (confirm(`Удалить пользователя "${userName}"?`)) {
-                    // Удаляем пользователя
                     allUsers = deleteUser(userId);
-                    
-                    // Получаем текущий поисковый запрос
                     const searchInput = document.getElementById('userSearch');
                     const currentSearch = searchInput ? searchInput.value : '';
-                    
-                    // Перерисовываем список
                     renderUsers(currentSearch);
                     
-                    // Если удалили текущего пользователя, сбрасываем выбор
                     if (currentUser && currentUser.id === userId) {
                         currentUser = null;
                         localStorage.removeItem('currentUser');
@@ -301,15 +252,13 @@ function initUserSelection() {
         });
     }
     
-    // ========== НАСТРОЙКА ПОИСКА ==========
+    // Настройка поиска
     const searchInput = document.getElementById('userSearch');
     if (searchInput) {
-        // Обработчик ввода в поле поиска
         searchInput.addEventListener('input', function() {
             renderUsers(this.value);
         });
         
-        // Обработчик очистки поиска при нажатии Escape
         searchInput.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 this.value = '';
@@ -317,16 +266,6 @@ function initUserSelection() {
                 this.blur();
             }
         });
-        
-        // Обработчик клика по иконке поиска
-        const searchIcon = searchInput.parentNode.querySelector('div');
-        if (searchIcon) {
-            searchIcon.style.cursor = 'pointer';
-            searchIcon.title = 'Нажмите для фокуса на поле поиска';
-            searchIcon.onclick = function() {
-                searchInput.focus();
-            };
-        }
     }
     
     // Кнопка "Добавить пользователя"
@@ -340,36 +279,25 @@ function initUserSelection() {
                 return;
             }
             
-            // Проверяем, нет ли уже пользователя с таким именем
             const existingUser = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
             if (existingUser) {
                 alert('Пользователь с таким именем уже существует!');
                 return;
             }
             
-            const newUser = {
-                id: Date.now(),
-                username: username
-            };
-            
+            const newUser = { id: Date.now(), username: username };
             allUsers.push(newUser);
             saveData('trashsort_users', allUsers);
             
-            // Очищаем поле поиска при добавлении нового пользователя
             const searchInput = document.getElementById('userSearch');
-            if (searchInput) {
-                searchInput.value = '';
-            }
+            if (searchInput) searchInput.value = '';
             
             renderUsers('');
             input.value = '';
             
-            // Выбираем нового пользователя
             setTimeout(() => {
                 const newUserElem = document.querySelector(`.user-item[data-id="${newUser.id}"]`);
-                if (newUserElem) {
-                    newUserElem.click();
-                }
+                if (newUserElem) newUserElem.click();
             }, 100);
         };
     }
@@ -377,13 +305,11 @@ function initUserSelection() {
     // Кнопка "Далее"
     if (nextBtn) {
         nextBtn.onclick = function() {
-            // ЯВНАЯ проверка - есть ли ВИЗУАЛЬНО выбранный пользователь
             const selectedUserElement = document.querySelector('.user-item.selected');
             
             if (!selectedUserElement) {
                 alert('❌ ВЫБЕРИТЕ ПОЛЬЗОВАТЕЛЯ!\n\nНажмите на имя пользователя в списке выше.');
                 
-                // Визуальная обратная связь
                 userList.style.border = '3px solid #ff3333';
                 userList.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
                 
@@ -391,11 +317,9 @@ function initUserSelection() {
                     userList.style.border = '2px solid #ffd700';
                     userList.style.boxShadow = 'none';
                 }, 2000);
-                
                 return;
             }
             
-            // Убедимся, что currentUser соответствует выбранному элементу
             const userId = parseInt(selectedUserElement.dataset.id);
             const selectedUser = allUsers.find(u => u.id === userId);
             
@@ -417,10 +341,8 @@ function initUserSelection() {
         };
     }
     
-    // Загружаем текущего пользователя из localStorage
+    // Загружаем текущего пользователя
     currentUser = loadData('currentUser');
-    
-    // Первоначальная отрисовка
     renderUsers();
 }
 
@@ -431,6 +353,7 @@ function initMaterialSelection() {
     const materialsContainer = document.getElementById('materialsContainer');
     const nextBtn = document.getElementById('nextBtn');
     const backBtn = document.getElementById('backBtn');
+    const cornerButton = document.getElementById('cornerButton');
     
     if (!materialsContainer) return;
     
@@ -442,34 +365,36 @@ function initMaterialSelection() {
         return;
     }
     
-    // Отображаем материалы - ВСЕ КОНТЕЙНЕРЫ ОДИНАКОВОГО РАЗМЕРА
+    // Добавляем кнопку с фотоаппаратом в углу
+    if (cornerButton) {
+        cornerButton.onclick = function() {
+            goToPage('empty.html');
+        };
+    }
+    
+    // Отображаем материалы в оригинальном дизайне
     materialsContainer.innerHTML = '';
     materials.forEach(material => {
         const card = document.createElement('div');
         card.className = 'material-card';
         card.dataset.id = material.id;
         
-        // Используем container в заголовке и example в описании
         card.innerHTML = `
             <div class="material-title">${material.container}</div>
-            <div class="material-name">${material.name}</div>
+            <div style="font-size: 1.1rem; color: #ff9900; font-weight: 600; margin-bottom: 10px;">${material.name}</div>
             <div class="material-description">${material.example}</div>
         `;
         
-        // АНИМАЦИИ - ЖЁЛТАЯ ОБВОДКА И ЦВЕТ ПРИ НАВЕДЕНИИ
+        // Оригинальные эффекты при наведении
         card.onmouseenter = function() {
-            this.style.transform = 'translateY(-5px) scale(1.03)';
-            this.style.boxShadow = '0 8px 20px rgba(255, 215, 0, 0.4)';
-            this.style.border = '3px solid #ffd700';
-            this.style.backgroundColor = 'rgba(255, 215, 0, 0.15)';
+            this.style.transform = 'translateY(-5px)';
+            this.style.boxShadow = '0 5px 15px rgba(255, 215, 0, 0.3)';
         };
         
         card.onmouseleave = function() {
             if (!this.classList.contains('selected')) {
-                this.style.transform = 'translateY(0) scale(1)';
-                this.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
-                this.style.border = '3px solid #ffd700';
-                this.style.backgroundColor = '';
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
             }
         };
         
@@ -477,16 +402,16 @@ function initMaterialSelection() {
             // Убираем выделение у всех
             document.querySelectorAll('.material-card').forEach(item => {
                 item.classList.remove('selected');
-                item.style.border = '3px solid #ffd700';
-                item.style.backgroundColor = '';
-                item.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
+                item.style.transform = 'translateY(0)';
+                item.style.boxShadow = '0 4px 6px rgba(0,0,0,0.1)';
+                item.style.backgroundColor = '#ffffff';
             });
             
             // Выделяем текущий с анимацией
             this.classList.add('selected');
-            this.style.border = '4px solid #ffd700';
-            this.style.backgroundColor = 'rgba(255, 215, 0, 0.2)';
-            this.style.boxShadow = '0 8px 20px rgba(255, 215, 0, 0.5)';
+            this.style.backgroundColor = '#fff9e6';
+            this.style.boxShadow = '0 0 20px rgba(255, 215, 0, 0.5)';
+            this.style.transform = 'translateY(-5px)';
             
             // Эффект "пульсации"
             this.style.animation = 'pulse 0.5s ease-in-out';
@@ -504,141 +429,13 @@ function initMaterialSelection() {
         materialsContainer.appendChild(card);
     });
     
-    // Добавляем CSS для ОДИНАКОВЫХ КОНТЕЙНЕРОВ
+    // Добавляем CSS для анимации
     const style = document.createElement('style');
     style.textContent = `
         @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        
-        .material-card {
-            width: 100%;
-            height: 180px; /* ФИКСИРОВАННАЯ ВЫСОТА для всех */
-            margin: 10px auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border: 3px solid #ffd700;
-            border-radius: 15px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-sizing: border-box;
-        }
-        
-        /* Полоска сверху */
-        .material-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 5px;
-            background: #ffd700;
-            opacity: 0.9;
-        }
-        
-        .material-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 8px;
-            line-height: 1.2;
-        }
-        
-        .material-name {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #ff9900;
-            margin-bottom: 10px;
-            line-height: 1.2;
-        }
-        
-        .material-description {
-            font-size: 0.95rem;
-            color: #666;
-            line-height: 1.4;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-        
-        /* АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТА (ГОРИЗОНТАЛЬНО) */
-        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-            #materialsContainer {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 20px;
-                max-width: 900px;
-                margin: 0 auto;
-                padding: 10px;
-            }
-            
-            .material-card {
-                margin: 0;
-                height: 180px; /* ТА ЖЕ ВЫСОТА */
-                width: 100%;
-            }
-            
-            .material-title {
-                font-size: 1.3rem;
-            }
-            
-            .material-name {
-                font-size: 1.1rem;
-            }
-            
-            .material-description {
-                font-size: 1rem;
-                -webkit-line-clamp: 2;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            #materialsContainer {
-                grid-template-columns: repeat(3, 1fr);
-                gap: 25px;
-                max-width: 1200px;
-            }
-            
-            .material-card {
-                height: 180px; /* ТА ЖЕ ВЫСОТА */
-            }
-        }
-        
-        /* Для вертикальных планшетов */
-        @media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
-            #materialsContainer {
-                grid-template-columns: repeat(2, 1fr);
-                gap: 15px;
-            }
-            
-            .material-card {
-                height: 180px; /* ТА ЖЕ ВЫСОТА */
-            }
-        }
-        
-        /* Для мобильных */
-        @media (max-width: 767px) {
-            #materialsContainer {
-                display: block;
-                max-width: 400px;
-                margin: 0 auto;
-            }
-            
-            .material-card {
-                height: 180px; /* ТА ЖЕ ВЫСОТА */
-                margin: 10px auto;
-            }
+            0% { transform: translateY(-5px) scale(1); }
+            50% { transform: translateY(-5px) scale(1.05); }
+            100% { transform: translateY(-5px) scale(1); }
         }
     `;
     document.head.appendChild(style);
@@ -662,10 +459,11 @@ function initMaterialSelection() {
     }
 }
 
-// ========== СТРАНИЦА 3: ИНСТРУКЦИИ (МИНИМАЛИСТИЧНАЯ) ==========
+// ========== СТРАНИЦА 3: ИНСТРУКЦИИ (СУПЕР КОМПАКТНЫЕ) ==========
 function initInstructionsPage() {
     console.log('Инициализация страницы инструкций');
     
+    const pageTitle = document.getElementById('pageTitle');
     const materialName = document.getElementById('materialName');
     const instructionsText = document.getElementById('instructionsText');
     const restrictionsText = document.getElementById('restrictionsText');
@@ -691,140 +489,48 @@ function initInstructionsPage() {
         return;
     }
     
-    // МИНИМАЛИСТИЧНЫЙ ЗАГОЛОВОК
+    // Обновляем заголовок страницы
+    if (pageTitle) {
+        pageTitle.textContent = `Инструкция по утилизации: ${selectedMaterial.name}`;
+    }
+    
+    // Компактное название материала
     materialName.innerHTML = `
-        <h2 style="text-align: center; color: #333; margin-bottom: 5px; font-size: 1.8rem;">
+        <div style="font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 5px;">
             ${selectedMaterial.name}
-        </h2>
-        <div style="text-align: center; color: #666; font-size: 1.1rem; margin-bottom: 25px;">
+        </div>
+        <div style="font-size: 1rem; color: #666;">
             ${selectedMaterial.container}
         </div>
     `;
     
+    // Компактные инструкции
     if (instructionsText) {
-        // МИНИМАЛИСТИЧНАЯ ИНСТРУКЦИЯ
         instructionsText.innerHTML = `
-            <div style="margin-bottom: 25px;">
-                <div style="
-                    font-size: 1.2rem; 
-                    font-weight: 600; 
-                    color: #28a745;
-                    margin-bottom: 12px;
-                    padding-bottom: 5px;
-                    border-bottom: 2px solid #28a745;
-                ">
-                    Можно:
-                </div>
-                <div style="
-                    font-size: 1.1rem;
-                    line-height: 1.5;
-                    color: #333;
-                    padding: 5px 0;
-                ">
-                    ${selectedMaterial.instructions.split('\n').map(line => {
-                        if (line.startsWith('✓')) {
-                            return `<div style="margin: 8px 0;">• ${line.substring(1).trim()}</div>`;
-                        }
-                        return line;
-                    }).join('')}
-                </div>
+            <div style="font-size: 0.9rem; line-height: 1.4;">
+                ${selectedMaterial.instructions.split('\n').map(line => {
+                    if (line.startsWith('✓')) {
+                        return `<div style="margin: 4px 0; padding-left: 8px; border-left: 2px solid #28a745;">${line.substring(1).trim()}</div>`;
+                    }
+                    return line;
+                }).join('')}
             </div>
         `;
     }
     
+    // Компактные ограничения
     if (restrictionsText) {
-        // МИНИМАЛИСТИЧНЫЕ ОГРАНИЧЕНИЯ
         restrictionsText.innerHTML = `
-            <div style="margin-bottom: 25px;">
-                <div style="
-                    font-size: 1.2rem; 
-                    font-weight: 600; 
-                    color: #dc3545;
-                    margin-bottom: 12px;
-                    padding-bottom: 5px;
-                    border-bottom: 2px solid #dc3545;
-                ">
-                    Нельзя:
-                </div>
-                <div style="
-                    font-size: 1.1rem;
-                    line-height: 1.5;
-                    color: #333;
-                    padding: 5px 0;
-                ">
-                    ${selectedMaterial.restrictions.split('\n').map(line => {
-                        if (line.startsWith('✗')) {
-                            return `<div style="margin: 8px 0;">• ${line.substring(1).trim()}</div>`;
-                        }
-                        return line;
-                    }).join('')}
-                </div>
+            <div style="font-size: 0.9rem; line-height: 1.4;">
+                ${selectedMaterial.restrictions.split('\n').map(line => {
+                    if (line.startsWith('✗')) {
+                        return `<div style="margin: 4px 0; padding-left: 8px; border-left: 2px solid #dc3545;">${line.substring(1).trim()}</div>`;
+                    }
+                    return line;
+                }).join('')}
             </div>
         `;
     }
-    
-    // Добавляем минималистичный CSS
-    const style = document.createElement('style');
-    style.textContent = `
-        /* МИНИМАЛИСТИЧНЫЙ ДИЗАЙН */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            color: #333;
-        }
-        
-        /* АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТА (ГОРИЗОНТАЛЬНО) */
-        @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
-            #materialName h2 {
-                font-size: 2rem;
-            }
-            
-            #materialName div {
-                font-size: 1.2rem;
-            }
-            
-            #instructionsText > div,
-            #restrictionsText > div {
-                max-width: 80%;
-                margin: 0 auto 30px auto;
-            }
-            
-            #instructionsText > div > div:last-child,
-            #restrictionsText > div > div:last-child {
-                font-size: 1.1rem;
-            }
-            
-            .button-container {
-                display: flex;
-                justify-content: center;
-                gap: 20px;
-                margin-top: 30px;
-            }
-        }
-        
-        @media (min-width: 1024px) {
-            #materialName h2 {
-                font-size: 2.2rem;
-            }
-            
-            #instructionsText > div,
-            #restrictionsText > div {
-                max-width: 600px;
-                margin: 0 auto 30px auto;
-            }
-        }
-        
-        @media (max-width: 767px) {
-            #materialName h2 {
-                font-size: 1.6rem;
-            }
-            
-            #instructionsText > div,
-            #restrictionsText > div {
-                margin: 0 15px 25px 15px;
-            }
-        }
-    `;
-    document.head.appendChild(style);
     
     // Кнопка "Есть триггер"
     if (hasTriggerBtn) {
@@ -833,7 +539,7 @@ function initInstructionsPage() {
         };
     }
     
-    // Кнопка "Далее" - теперь ведет на страницу мотивации
+    // Кнопка "Далее"
     if (nextBtn) {
         nextBtn.onclick = function() {
             if (!selectedMaterial) {
@@ -841,7 +547,7 @@ function initInstructionsPage() {
                 return;
             }
             
-            // Сохраняем статистику ТОЛЬКО для текущего пользователя
+            // Сохраняем статистику
             let disposals = loadData('trashsort_disposals') || [];
             disposals.push({
                 id: Date.now(),
@@ -873,6 +579,304 @@ function initInstructionsPage() {
     }
 }
 
+// ========== СТРАНИЦА 5: МОТИВАЦИЯ ==========
+function initMotivationPage() {
+    console.log('Инициализация страницы мотивации');
+    
+    const materialIcon = document.getElementById('materialIcon');
+    const pageTitle = document.getElementById('pageTitle');
+    const motivationText = document.getElementById('motivationText');
+    const environmentFact = document.getElementById('environmentFact');
+    const totalCount = document.getElementById('totalCount');
+    const materialCount = document.getElementById('materialCount');
+    const todayCount = document.getElementById('todayCount');
+    const continueBtn = document.getElementById('continueBtn');
+    const statsBtn = document.getElementById('statsBtn');
+    
+    if (!materialIcon) return;
+    
+    // Загружаем информацию о последней утилизации
+    const lastDisposal = loadData('last_disposed_material');
+    if (!lastDisposal) {
+        goToPage('material_selection.html');
+        return;
+    }
+    
+    // Загружаем текущего пользователя
+    currentUser = loadData('currentUser');
+    if (!currentUser) {
+        goToPage('user_selection.html');
+        return;
+    }
+    
+    // Загружаем все утилизации пользователя
+    const disposals = loadData('trashsort_disposals') || [];
+    const userDisposals = disposals.filter(d => d.user_id === currentUser.id);
+    
+    // Рассчитываем статистику
+    const totalUserDisposals = userDisposals.length;
+    const today = new Date().toDateString();
+    const todayDisposals = userDisposals.filter(d => 
+        new Date(d.timestamp).toDateString() === today
+    ).length;
+    
+    const materialDisposals = userDisposals.filter(d => 
+        d.material_name === lastDisposal.name
+    ).length;
+    
+    // Устанавливаем иконку
+    const iconMap = {
+        'Контейнер 1: ПЭТ-бутылки': '🧴',
+        'Контейнер 2: Бытовой пластик': '🧴',
+        'Контейнер 3: Пищевой пластик': '🥡',
+        'Контейнер 4: Пенопласт': '📦',
+        'Контейнер 5: Картон, бумага': '📄',
+        'Контейнер 6: Стекло': '🥛'
+    };
+    
+    materialIcon.textContent = iconMap[lastDisposal.name] || '♻️';
+    
+    // Красивый заголовок
+    const materialNameOnly = lastDisposal.name.split(': ')[1] || lastDisposal.name;
+    pageTitle.innerHTML = `
+        <div style="text-align: center; margin-bottom: 15px;">
+            <div style="font-size: 2.5rem; margin-bottom: 10px;">🎉</div>
+            <div style="font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 5px;">
+                Отличная работа!
+            </div>
+            <div style="font-size: 1.2rem; color: #666;">
+                Вы утилизировали <span style="color: #ff9900; font-weight: 600;">${materialNameOnly.toLowerCase()}</span>
+            </div>
+        </div>
+    `;
+    
+    // Мотивационная фраза
+    const motivationPhrases = {
+        'Контейнер 1: ПЭТ-бутылки': [
+            `🌊 Вы спасли ${Math.floor(materialDisposals * 1.5)} морских животных от пластика!`,
+            `♻️ ПЭТ-бутылки получат вторую жизнь как одежда или мебель!`,
+            `🐋 Вы делаете океаны чище с каждой бутылкой!`
+        ],
+        'Контейнер 2: Бытовой пластик': [
+            `🛡️ Вы защитили природу от химических веществ!`,
+            `🔁 Флаконы и канистры будут переработаны в новые изделия!`,
+            `🌿 Правильная утилизация бытового пластика спасает экосистемы!`
+        ],
+        'Контейнер 3: Пищевой пластик': [
+            `🍽️ Пищевой пластик чист и готов к новой жизни!`,
+            `📦 Упаковка от еды станет полезными вещами!`,
+            `✅ Вы сделали всё правильно - контейнеры не станут мусором!`
+        ],
+        'Контейнер 4: Пенопласт': [
+            `📦 Пенопласт упакован идеально - минимум места!`,
+            `♾️ Упаковка от техники избежала 1000 лет разложения!`,
+            `🥚 Яичные лотки получат второй шанс!`
+        ],
+        'Контейнер 5: Картон, бумага': [
+            `🌳 Вы спасли ${Math.floor(materialDisposals * 0.17)} дерева!`,
+            `💧 Сохранено ${materialDisposals * 50} литров воды!`,
+            `📚 Эта бумага станет новой книгой или тетрадью!`
+        ],
+        'Контейнер 6: Стекло': [
+            `⚡ Сэкономлено ${materialDisposals * 25}% энергии на производстве!`,
+            `♻️ Стекло можно перерабатывать бесконечно!`,
+            `🥛 Бутылки вернутся на полки через 30 дней!`
+        ]
+    };
+    
+    const phrases = motivationPhrases[lastDisposal.name] || [
+        '🌍 Спасибо за ваш вклад в чистоту планеты!'
+    ];
+    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
+    motivationText.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid #ffd700;
+            margin: 10px 0;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        ">
+            ${randomPhrase}
+        </div>
+    `;
+    
+    // Экологический факт
+    const ecoFacts = [
+        `📊 Если бы каждый сортировал мусор, свалки сократились бы на 60%!`,
+        `⚡ Переработка одной алюминиевой банки экономит энергию для работы телевизора 3 часа!`,
+        `♻️ Стекло разлагается 1000+ лет, но перерабатывается бесконечно!`,
+        `🌱 Переработка пластика экономит до 80% энергии по сравнению с производством нового!`,
+        `💧 На производство 1 кг бумаги уходит 300 литров воды - вы экономите этот ресурс!`
+    ];
+    const randomFact = ecoFacts[Math.floor(Math.random() * ecoFacts.length)];
+    environmentFact.innerHTML = `
+        <div style="
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(56, 142, 60, 0.05) 100%);
+            padding: 12px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-size: 0.95rem;
+            line-height: 1.4;
+            border-left: 4px solid #4CAF50;
+        ">
+            <div style="font-weight: bold; color: #2E7D32; margin-bottom: 5px;">📚 Экологический факт</div>
+            <div>${randomFact}</div>
+        </div>
+    `;
+    
+    // Статистика
+    if (totalCount && materialCount && todayCount) {
+        totalCount.textContent = totalUserDisposals;
+        materialCount.textContent = materialDisposals;
+        todayCount.textContent = todayDisposals;
+    }
+    
+    // Кнопки
+    if (continueBtn) {
+        continueBtn.onclick = function() {
+            goToPage('material_selection.html');
+        };
+    }
+    
+    if (statsBtn) {
+        statsBtn.onclick = function() {
+            goToPage('statistics.html');
+        };
+    }
+    
+    // Таймер автовозврата
+    const TIMEOUT_SECONDS = 20;
+    let timeLeft = TIMEOUT_SECONDS;
+    let inactivityTimer;
+    
+    const timerElement = document.createElement('div');
+    timerElement.id = 'autoRedirectTimer';
+    timerElement.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
+        color: #000;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+    `;
+    
+    const timerIcon = document.createElement('span');
+    timerIcon.textContent = '⏱️';
+    
+    const timerText = document.createElement('span');
+    timerText.id = 'timerCountdown';
+    timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
+    
+    timerElement.appendChild(timerIcon);
+    timerElement.appendChild(timerText);
+    document.body.appendChild(timerElement);
+    
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        timeLeft = TIMEOUT_SECONDS;
+        updateTimerDisplay();
+        
+        inactivityTimer = setTimeout(() => {
+            redirectToMainPage();
+        }, TIMEOUT_SECONDS * 1000);
+    }
+    
+    function updateTimerDisplay() {
+        timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
+        
+        if (timeLeft <= 5) {
+            timerElement.style.background = 'linear-gradient(135deg, #ff3333 0%, #cc0000 100%)';
+            timerElement.style.color = 'white';
+        } else if (timeLeft <= 10) {
+            timerElement.style.background = 'linear-gradient(135deg, #ff9800 0%, #f57c00 100%)';
+        }
+    }
+    
+    const countdownInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+    
+    function redirectToMainPage() {
+        document.body.style.transition = 'opacity 0.5s';
+        document.body.style.opacity = '0.5';
+        
+        const message = document.createElement('div');
+        message.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+            z-index: 9999;
+            border: 3px solid #ffd700;
+            min-width: 300px;
+        `;
+        message.innerHTML = `
+            <div style="font-size: 3rem; margin-bottom: 15px;">🎉</div>
+            <h3 style="margin: 0 0 10px 0; color: #333;">Спасибо!</h3>
+            <p style="color: #666; margin: 0;">Возвращаем на главную...</p>
+        `;
+        document.body.appendChild(message);
+        
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+    }
+    
+    const activityEvents = ['mousemove', 'keydown', 'click', 'scroll', 'touchstart'];
+    activityEvents.forEach(event => {
+        window.addEventListener(event, resetInactivityTimer, { passive: true });
+    });
+    
+    resetInactivityTimer();
+    
+    // Обработчики кнопок с очисткой таймера
+    const originalContinueClick = continueBtn.onclick;
+    const originalStatsClick = statsBtn.onclick;
+    
+    continueBtn.onclick = function() {
+        clearTimeout(inactivityTimer);
+        clearInterval(countdownInterval);
+        timerElement.remove();
+        originalContinueClick.call(this);
+    };
+    
+    if (statsBtn) {
+        statsBtn.onclick = function() {
+            clearTimeout(inactivityTimer);
+            clearInterval(countdownInterval);
+            timerElement.remove();
+            originalStatsClick.call(this);
+        };
+    }
+    
+    window.addEventListener('beforeunload', function() {
+        clearTimeout(inactivityTimer);
+        clearInterval(countdownInterval);
+    });
+}
+
 // ========== СТРАНИЦА 4: СТАТИСТИКА ==========
 function initStatisticsPage() {
     console.log('Инициализация страницы статистики');
@@ -884,6 +888,8 @@ function initStatisticsPage() {
     const materialsBreakdown = document.getElementById('materialsBreakdown');
     const nextBtn = document.getElementById('nextBtn');
     const backBtn = document.getElementById('backBtn');
+    const homeBtn = document.getElementById('homeBtn');
+    const resetBtn = document.getElementById('resetBtn');
     const userNameDisplay = document.getElementById('userNameDisplay');
     
     // Загружаем текущего пользователя
@@ -898,7 +904,6 @@ function initStatisticsPage() {
     if (userNameDisplay) {
         userNameDisplay.textContent = currentUser.username;
     } else {
-        // Добавляем имя пользователя в заголовок
         const pageTitle = document.querySelector('.page-title');
         if (pageTitle) {
             pageTitle.innerHTML = `Статистика: <span style="color: #ffd700">${currentUser.username}</span>`;
@@ -1030,6 +1035,28 @@ function initStatisticsPage() {
         }
     }
     
+    // Кнопка "Главная"
+    if (homeBtn) {
+        homeBtn.onclick = function() {
+            goToPage('index.html');
+        };
+    }
+    
+    // Кнопка "Сбросить статистику"
+    if (resetBtn) {
+        resetBtn.onclick = function() {
+            if (confirm('Вы уверены, что хотите сбросить всю свою статистику? Это действие нельзя отменить.')) {
+                // Удаляем все утилизации этого пользователя
+                let disposals = loadData('trashsort_disposals') || [];
+                disposals = disposals.filter(d => d.user_id !== currentUser.id);
+                saveData('trashsort_disposals', disposals);
+                
+                // Перезагружаем страницу
+                location.reload();
+            }
+        };
+    }
+    
     // Кнопка "Завершить"
     if (nextBtn) {
         nextBtn.onclick = function() {
@@ -1045,266 +1072,27 @@ function initStatisticsPage() {
     }
 }
 
-// ========== СТРАНИЦА 5: МОТИВАЦИЯ ==========
-function initMotivationPage() {
-    console.log('Инициализация страницы мотивации');
-    
-    const materialIcon = document.getElementById('materialIcon');
-    const pageTitle = document.getElementById('pageTitle');
-    const motivationText = document.getElementById('motivationText');
-    const environmentFact = document.getElementById('environmentFact');
-    const totalCount = document.getElementById('totalCount');
-    const materialCount = document.getElementById('materialCount');
-    const todayCount = document.getElementById('todayCount');
-    const continueBtn = document.getElementById('continueBtn');
-    const statsBtn = document.getElementById('statsBtn');
-    
-    if (!materialIcon) return;
-    
-    // Загружаем информацию о последней утилизации
-    const lastDisposal = loadData('last_disposed_material');
-    if (!lastDisposal) {
-        goToPage('material_selection.html');
-        return;
-    }
-    
-    // Загружаем текущего пользователя
-    currentUser = loadData('currentUser');
-    if (!currentUser) {
-        goToPage('user_selection.html');
-        return;
-    }
-    
-    // Загружаем все утилизации пользователя
-    const disposals = loadData('trashsort_disposals') || [];
-    const userDisposals = disposals.filter(d => d.user_id === currentUser.id);
-    
-    // Рассчитываем статистику
-    const totalUserDisposals = userDisposals.length;
-    const today = new Date().toDateString();
-    const todayDisposals = userDisposals.filter(d => 
-        new Date(d.timestamp).toDateString() === today
-    ).length;
-    
-    const materialDisposals = userDisposals.filter(d => 
-        d.material_name === lastDisposal.name
-    ).length;
-    
-    // Устанавливаем иконку
-    const iconMap = {
-        'Контейнер 1: ПЭТ-бутылки': '🧴',
-        'Контейнер 2: Бытовой пластик': '🧴',
-        'Контейнер 3: Пищевой пластик': '🥡',
-        'Контейнер 4: Пенопласт': '📦',
-        'Контейнер 5: Картон, бумага': '📄',
-        'Контейнер 6: Стекло': '🥛'
-    };
-    
-    materialIcon.textContent = iconMap[lastDisposal.name] || '♻️';
-    
-    // Устанавливаем заголовок
-    const materialNameOnly = lastDisposal.name.split(': ')[1] || lastDisposal.name;
-    pageTitle.textContent = `Вы утилизировали ${materialNameOnly.toLowerCase()}!`;
-    
-    // Генерируем мотивирующую фразу
-    const motivationPhrases = {
-        'Контейнер 1: ПЭТ-бутылки': [
-            `Вы спасли ${Math.floor(materialDisposals * 1.5)} морских животных! 🐋`,
-            `Этот пластик будет переработан в новую бутылку!`,
-            `Вы сделали океан чище! 🌊`
-        ],
-        'Контейнер 2: Бытовой пластик': [
-            `Вы предотвратили химическое загрязнение!`,
-            `Флаконы и канистры получат вторую жизнь!`,
-            `Бытовой пластик правильно утилизирован!`
-        ],
-        'Контейнер 3: Пищевой пластик': [
-            `Пищевой пластик чист и готов к переработке!`,
-            `Вы правильно подготовили упаковку!`,
-            `Стаканчики и контейнеры не станут мусором!`
-        ],
-        'Контейнер 4: Пенопласт': [
-            `Пенопласт упакован правильно!`,
-            `Вы спасли упаковку от разложения на свалке!`,
-            `Яичные лотки будут использованы повторно!`
-        ],
-        'Контейнер 5: Картон, бумага': [
-            `Вы спасли ${Math.floor(materialDisposals * 0.17)} дерева! 🌳`,
-            `Переработка этой бумаги сэкономила ${materialDisposals * 50} л воды! 💧`,
-            `Эта бумага станет новой тетрадью! 📚`
-        ],
-        'Контейнер 6: Стекло': [
-            `Переработанное стекло экономит ${materialDisposals * 25}% энергии!`,
-            `Это стекло можно перерабатывать бесконечно!`,
-            `Стеклянная бутылка вернётся на полку через 30 дней!`
-        ]
-    };
-    
-    const phrases = motivationPhrases[lastDisposal.name] || [
-        'Спасибо за ваш вклад в чистоту планеты! 🌍'
-    ];
-    const randomPhrase = phrases[Math.floor(Math.random() * phrases.length)];
-    motivationText.textContent = randomPhrase;
-    
-    // Экологический факт
-    const ecoFacts = [
-        `Если бы каждый человек сортировал мусор, мы бы сократили свалки на 60%!`,
-        `Переработка одной алюминиевой банки экономит энергию для работы телевизора 3 часа.`,
-        `Стекло разлагается более 1000 лет, но может перерабатываться бесконечно.`,
-        `Переработка пластика экономит до 80% энергии.`
-    ];
-    const randomFact = ecoFacts[Math.floor(Math.random() * ecoFacts.length)];
-    environmentFact.innerHTML = `<strong>Факт:</strong> ${randomFact}`;
-    
-    // Обновляем статистику
-    totalCount.textContent = totalUserDisposals;
-    materialCount.textContent = materialDisposals;
-    todayCount.textContent = todayDisposals;
-    
-    const TIMEOUT_SECONDS = 15;
-    let timeLeft = TIMEOUT_SECONDS;
-    let inactivityTimer;
-    
-    // Таймер автовозврата
-    const timerElement = document.createElement('div');
-    timerElement.id = 'autoRedirectTimer';
-    timerElement.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: rgba(255, 215, 0, 0.9);
-        color: #000;
-        padding: 10px 15px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        z-index: 1000;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    `;
-    
-    const timerIcon = document.createElement('span');
-    timerIcon.textContent = '⏱️';
-    
-    const timerText = document.createElement('span');
-    timerText.id = 'timerCountdown';
-    timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
-    
-    timerElement.appendChild(timerIcon);
-    timerElement.appendChild(timerText);
-    document.body.appendChild(timerElement);
-    
-    // Функция для сброса таймера
-    function resetInactivityTimer() {
-        clearTimeout(inactivityTimer);
-        timeLeft = TIMEOUT_SECONDS;
-        updateTimerDisplay();
-        
-        inactivityTimer = setTimeout(() => {
-            redirectToMainPage();
-        }, TIMEOUT_SECONDS * 1000);
-    }
-    
-    // Обновление отображения таймера
-    function updateTimerDisplay() {
-        timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
-        
-        if (timeLeft <= 5) {
-            timerElement.style.background = 'rgba(255, 51, 51, 0.9)';
-            timerElement.style.color = 'white';
-        } else if (timeLeft <= 10) {
-            timerElement.style.background = 'rgba(255, 193, 7, 0.9)';
-        }
-    }
-    
-    // Уменьшение таймера
-    const countdownInterval = setInterval(() => {
-        timeLeft--;
-        updateTimerDisplay();
-        
-        if (timeLeft <= 0) {
-            clearInterval(countdownInterval);
-        }
-    }, 1000);
-    
-    // Перенаправление на главную
-    function redirectToMainPage() {
-        document.body.style.transition = 'opacity 0.5s';
-        document.body.style.opacity = '0.5';
-        
-        const message = document.createElement('div');
-        message.style.cssText = `
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 9999;
-            border: 3px solid #ffd700;
-        `;
-        message.innerHTML = `
-            <div style="font-size: 2rem; margin-bottom: 15px;">⏰</div>
-            <h3>Возвращаем на главную...</h3>
-            <p>Спасибо за использование TrashSort!</p>
-        `;
-        document.body.appendChild(message);
-        
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 2000);
-    }
-    
-    // События, сбрасывающие таймер
-    const activityEvents = [
-        'mousemove', 'keydown', 'click', 'scroll', 'touchstart'
-    ];
-    
-    activityEvents.forEach(event => {
-        window.addEventListener(event, resetInactivityTimer, { passive: true });
-    });
-    
-    // Инициализация таймера
-    resetInactivityTimer();
-    
-    // Обработчики кнопок
-    if (continueBtn) {
-        continueBtn.onclick = function() {
-            clearTimeout(inactivityTimer);
-            clearInterval(countdownInterval);
-            timerElement.remove();
-            goToPage('material_selection.html');
-        };
-    }
-    
-    if (statsBtn) {
-        statsBtn.onclick = function() {
-            clearTimeout(inactivityTimer);
-            clearInterval(countdownInterval);
-            timerElement.remove();
-            goToPage('statistics.html');
-        };
-    }
-    
-    // Очистка
-    window.addEventListener('beforeunload', function() {
-        clearTimeout(inactivityTimer);
-        clearInterval(countdownInterval);
-    });
-}
-
 // ========== ГЛАВНАЯ СТРАНИЦА ==========
 function initMainPage() {
     console.log('Инициализация главной страницы');
+    
+    // НА ГЛАВНОЙ СТРАНИЦЕ логотип НЕ кликабелен
+    const logo = document.querySelector('.logo');
+    if (logo) {
+        logo.style.cursor = 'default'; // Курсор по умолчанию
+        logo.style.pointerEvents = 'none'; // Отключаем клики
+        logo.title = ''; // Убираем подсказку
+        
+        // Убираем ховер-эффект на главной
+        logo.onmouseenter = null;
+        logo.onmouseleave = null;
+        logo.onclick = null;
+    }
 }
 
 // ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM загружен - TrashSort v2.2 с поиском пользователей!');
+    console.log('DOM загружен - TrashSort v2.4 с улучшенным дизайном!');
     
     // Определяем текущую страницу
     const path = window.location.pathname;
@@ -1312,6 +1100,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('Текущая страница:', page);
     
+    // Вызываем соответствующую функцию инициализации
     switch(page) {
         case 'index.html':
         case '':
@@ -1332,52 +1121,69 @@ document.addEventListener('DOMContentLoaded', function() {
         case 'statistics.html':
             initStatisticsPage();
             break;
+        case 'empty.html':
+            // Пустая страница не требует инициализации
+            break;
         default:
             console.log('Неизвестная страница:', page);
             window.location.href = 'index.html';
     }
     
-    // Обработка кнопок "Назад"
+    // Обработка кнопок "Назад" для всех страниц
     setTimeout(() => {
         const allBackBtns = document.querySelectorAll('#backBtn');
         allBackBtns.forEach(btn => {
-            btn.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (window.history.length > 1) {
-                    window.history.back();
-                } else {
-                    const currentPage = window.location.pathname.split('/').pop();
-                    const fallbackRoutes = {
-                        'user_selection.html': 'index.html',
-                        'material_selection.html': 'user_selection.html',
-                        'instructions.html': 'material_selection.html',
-                        'motivation.html': 'instructions.html',
-                        'statistics.html': 'motivation.html'
-                    };
+            if (btn) {
+                btn.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
                     
-                    if (fallbackRoutes[currentPage]) {
-                        window.location.href = fallbackRoutes[currentPage];
+                    if (window.history.length > 1) {
+                        window.history.back();
+                    } else {
+                        const currentPage = window.location.pathname.split('/').pop();
+                        const fallbackRoutes = {
+                            'user_selection.html': 'index.html',
+                            'material_selection.html': 'user_selection.html',
+                            'instructions.html': 'material_selection.html',
+                            'motivation.html': 'instructions.html',
+                            'statistics.html': 'motivation.html',
+                            'empty.html': 'material_selection.html'
+                        };
+                        
+                        if (fallbackRoutes[currentPage]) {
+                            window.location.href = fallbackRoutes[currentPage];
+                        } else {
+                            window.location.href = 'index.html';
+                        }
                     }
-                }
-            };
+                };
+            }
         });
     }, 100);
     
-    // Кликабельный логотип
+    // Кликабельный логотип на ВСЕХ страницах кроме главной
     const logo = document.querySelector('.logo');
-    if (logo) {
+    const currentPage = window.location.pathname.split('/').pop();
+    
+    if (logo && currentPage !== 'index.html' && currentPage !== '') {
         logo.style.cursor = 'pointer';
         logo.title = 'Вернуться на главную';
+        logo.style.pointerEvents = 'auto';
+        
+        // Добавляем ховер-эффект
+        logo.addEventListener('mouseenter', function() {
+            this.style.color = '#ffd700';
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        logo.addEventListener('mouseleave', function() {
+            this.style.color = '#333333';
+            this.style.transform = 'scale(1)';
+        });
         
         logo.onclick = function() {
-            const currentPage = window.location.pathname.split('/').pop();
-            if (currentPage === 'index.html' || currentPage === '' || currentPage === 'index.html') {
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            } else {
-                window.location.href = 'index.html';
-            }
+            goToPage('index.html');
         };
     }
 });

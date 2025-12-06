@@ -6,6 +6,61 @@
     <title>TrashSort - Инструкции</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        .instructions-ultra-compact {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 15px;
+        }
+        
+        .instructions-compact-title {
+            text-align: center;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .instructions-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions-column {
+            flex: 1;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .instructions-column h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .instructions-content.compact {
+            background: none;
+            border: none;
+            padding: 0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .instructions-content.compact div {
+            margin: 3px 0;
+            padding-left: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .instructions-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -19,24 +74,30 @@
 
     <main>
         <div class="container">
-            <h1 class="page-title">Инструкции по утилизации: <span id="materialName"></span></h1>
+            <h1 class="page-title" id="pageTitle">Инструкция по утилизации</h1>
             
-            <div class="instructions-container">
-                <div class="instructions-section">
-                    <h2 class="section-title">📋 Как правильно утилизировать:</h2>
-                    <div class="instructions-content" id="instructionsText">
-                        <!-- Инструкции загружаются через JS -->
+            <div class="instructions-ultra-compact">
+                <div id="materialName" class="instructions-compact-title">
+                    <!-- Название материала загружается через JS -->
+                </div>
+                
+                <div class="instructions-row">
+                    <div class="instructions-column">
+                        <h3>✓ Можно</h3>
+                        <div class="instructions-content compact" id="instructionsText">
+                            <!-- Инструкции загружаются через JS -->
+                        </div>
+                    </div>
+                    
+                    <div class="instructions-column">
+                        <h3>✗ Нельзя</h3>
+                        <div class="instructions-content compact" id="restrictionsText">
+                            <!-- Ограничения загружаются через JS -->
+                        </div>
                     </div>
                 </div>
                 
-                <div class="instructions-section">
-                    <h2 class="section-title">⚠️ Ограничения и запреты:</h2>
-                    <div class="instructions-content restrictions" id="restrictionsText">
-                        <!-- Ограничения загружаются через JS -->
-                    </div>
-                </div>
-                
-                <div class="action-buttons">
+                <div class="action-buttons" style="margin-top: 20px;">
                     <button id="hasTriggerBtn" class="warning-button">У моего предмета есть триггер</button>
                     <button id="nextBtn" class="btn btn-primary">Всё в порядке, продолжить →</button>
                 </div>

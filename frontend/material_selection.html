@@ -6,6 +6,103 @@
     <title>TrashSort - Выбор материала</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        /* Контейнеры как в оригинальном дизайне */
+        .materials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            width: 100%;
+            margin-top: 30px;
+        }
+        
+        .material-card {
+            background-color: #ffffff;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .material-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .material-card.selected {
+            background-color: #fff9e6;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+        
+        .material-title {
+            font-size: 1.4rem;
+            color: #333333;
+            margin-bottom: 10px;
+        }
+        
+        .material-description {
+            color: #666666;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .material-example {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            color: #666666;
+            white-space: pre-line;
+        }
+        
+        /* Кнопка с фотоаппаратом */
+        .corner-button {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: #ffd700;
+            color: #000;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+        
+        .corner-button:hover {
+            background-color: #ffed4e;
+            transform: scale(1.1);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .materials-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .corner-button {
+                bottom: 15px;
+                left: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -30,6 +127,9 @@
             </div>
         </div>
     </main>
+
+    <!-- Кнопка с фотоаппаратом в левом нижнем углу -->
+    <button id="cornerButton" class="corner-button">📸</button>
 
     <footer>
         <div class="container">
