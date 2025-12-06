@@ -797,10 +797,10 @@
                 
                 <div class="action-buttons" id="actionButtons">
                     <button class="action-btn btn-suitable" id="btnSuitable">
-                        ✅ Мой предмет подходит для утилизации
+                        Всё в порядке, продолжить →
                     </button>
                     <button class="action-btn btn-not-suitable" id="btnNotSuitable">
-                        ❌ Мой предмет не подходит для утилизации
+                        Мой предмет не подходит для переработки
                     </button>
                 </div>
             `;
@@ -826,21 +826,68 @@
         }
         
         // Обработка кнопки "Подходит для утилизации"
-        function handleSuitableItem(containerTitle, className) {
-            // Сохраняем информацию о материале для инструкций
-            const materialInfo = {
-                container: containerTitle.split(': ')[0],
-                name: containerTitle.split(': ')[1] || containerTitle,
-                className: className
-            };
+function handleSuitableItem(containerTitle, className) {
+    // Определяем ID материала на основе класса
+    let materialId;
+    switch(className) {
+        case "Class 1": materialId = 1; break;
+        case "Class 2": materialId = 2; break;
+        case "Class 3": materialId = 3; break;
+        case "Class 4": materialId = 4; break;
+        case "Class 5": materialId = 5; break;
+        case "Class 6": materialId = 6; break;
+        default: materialId = 1;
+    }
+    
+    // Находим материал по ID
+    const materials = [
+        { id: 1, container: "Контейнер 1", name: "ПЭТ-бутылки" },
+        { id: 2, container: "Контейнер 2", name: "Бытовой пластик" },
+        { id: 3, container: "Контейнер 3", name: "Пищевой пластик" },
+        { id: 4, container: "Контейнер 4", name: "Пенопласт" },
+        { id: 5, container: "Контейнер 5", name: "Картон, бумага" },
+        { id: 6, container: "Контейнер 6", name: "Стекло" }
+    ];
+    
+    const selectedMaterial = materials.find(m => m.id === materialId);
+    
+    if (selectedMaterial) {
+        // Сохраняем выбранный материал
+        localStorage.setItem('selectedMaterial', JSON.stringify(selectedMaterial));
+        localStorage.setItem('fromClassifier', 'true');
+        
+        // Загружаем текущего пользователя
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        
+        if (currentUser) {
+            // Сразу сохраняем статистику, чтобы избежать двойного подсчета
+            let disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
+            disposals.push({
+                id: Date.now(),
+                user_id: currentUser.id,
+                username: currentUser.username,
+                material_id: selectedMaterial.id,
+                material_name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                timestamp: new Date().toISOString(),
+                from_classifier: true // Добавляем флаг, что это из классификатора
+            });
+            localStorage.setItem('trashsort_disposals', JSON.stringify(disposals));
             
-            // Сохраняем в localStorage для использования на странице инструкций
-            localStorage.setItem('selectedMaterial', JSON.stringify(materialInfo));
-            localStorage.setItem('fromClassifier', 'true');
+            // Сохраняем информацию для мотивационной страницы
+            localStorage.setItem('last_disposed_material', JSON.stringify({
+                id: selectedMaterial.id,
+                name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                timestamp: new Date().toISOString()
+            }));
             
-            // Переходим на страницу инструкций
-            window.location.href = 'preparation.html';
+            console.log('Статистика сохранена из классификатора');
         }
+        
+        // Переходим сразу на страницу мотивации
+        window.location.href = 'preparation.html';
+    }
+}
+
         
         // Обработка кнопки "Не подходит для утилизации"
         function handleNotSuitableItem() {

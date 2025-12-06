@@ -472,6 +472,50 @@ function initMaterialSelection() {
 function initInstructionsPage() {
     console.log('Инициализация страницы инструкций');
     
+    // Проверяем, пришли ли мы из классификатора
+    const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
+    
+    // Если пришли из классификатора, пропускаем инструкции и идем дальше
+    if (fromClassifier) {
+        // Загружаем выбранный материал
+        selectedMaterial = loadData('selectedMaterial');
+        currentUser = loadData('currentUser');
+        
+        if (selectedMaterial && currentUser) {
+            // Проверяем, не была ли статистика уже сохранена из классификатора
+            let disposals = loadData('trashsort_disposals') || [];
+            const lastDisposal = disposals[disposals.length - 1];
+            
+            // Если последняя запись не из классификатора, сохраняем
+            if (!lastDisposal || !lastDisposal.from_classifier) {
+                disposals.push({
+                    id: Date.now(),
+                    user_id: currentUser.id,
+                    username: currentUser.username,
+                    material_id: selectedMaterial.id,
+                    material_name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                    timestamp: new Date().toISOString()
+                });
+                saveData('trashsort_disposals', disposals);
+            }
+            
+            // Сохраняем информацию для мотивационной страницы
+            saveData('last_disposed_material', {
+                id: selectedMaterial.id,
+                name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Очищаем флаг
+            localStorage.removeItem('fromClassifier');
+            
+            // Переходим сразу на страницу мотивации
+            window.location.href = 'preparation.html';
+            return;
+        }
+    }
+    console.log('Инициализация страницы инструкций');
+    
     const pageTitle = document.getElementById('pageTitle');
     const materialName = document.getElementById('materialName');
     const instructionsText = document.getElementById('instructionsText');

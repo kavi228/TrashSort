@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrashSort - Подготовка к утилизации</title>
     <style>
-        * {
+        *{
             margin: 0;
             padding: 0;
             box-sizing: border-box;
@@ -405,6 +405,9 @@
             
             // Настраиваем кнопки
             setupButtons(selectedMaterial.id);
+            
+            // Делаем логотип кликабельным
+            initLogoClick();
         });
         
         // Данные по подготовке для каждого типа материала
@@ -541,32 +544,69 @@
                 // Проверяем, откуда пришли
                 const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
                 if (fromClassifier) {
+                    // Возвращаемся в классификатор
                     window.history.back();
                 } else {
+                    // Возвращаемся на страницу инструкций
                     window.location.href = 'instructions.html';
                 }
             });
             
             nextBtn.addEventListener('click', function() {
-                // Сохраняем статистику утилизации
-                saveDisposalStatistic(materialId);
+                // Проверяем, пришли ли мы из классификатора
+                const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
+                
+                // Загружаем все утилизации для проверки
+                const disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                const selectedMaterial = JSON.parse(localStorage.getItem('selectedMaterial'));
+                
+                if (!currentUser) {
+                    alert('Ошибка: пользователь не найден');
+                    return;
+                }
+                
+                // Проверяем, не была ли статистика уже сохранена
+                const materialName = `${selectedMaterial.container}: ${selectedMaterial.name}`;
+                const last5Minutes = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+                
+                // Ищем, не была ли утилизация уже сохранена (за последние 5 минут)
+                const recentSameDisposal = disposals.find(d => 
+                    d.user_id === currentUser.id &&
+                    d.material_name === materialName &&
+                    d.timestamp > last5Minutes
+                );
+                
+                if (recentSameDisposal) {
+                    console.log('Статистика уже была сохранена ранее, пропускаем сохранение');
+                } else {
+                    // Если мы из классификатора, статистика уже должна была быть сохранена там
+                    // Если мы не из классификатора, сохраняем статистику
+                    if (!fromClassifier) {
+                        saveDisposalStatistic(materialId, selectedMaterial, currentUser);
+                        console.log('Статистика сохранена (не из классификатора)');
+                    } else {
+                        console.log('Статистика уже сохранена в классификаторе, пропускаем');
+                    }
+                }
+                
+                // Очищаем флаг классификатора
+                localStorage.removeItem('fromClassifier');
+                
+                // Сохраняем информацию для мотивационной страницы
+                localStorage.setItem('last_disposed_material', JSON.stringify({
+                    id: materialId,
+                    name: materialName,
+                    timestamp: new Date().toISOString()
+                }));
+                
                 // Переходим на страницу мотивации
                 window.location.href = 'motivation.html';
             });
         }
         
         // Сохранение статистики утилизации
-        function saveDisposalStatistic(materialId) {
-            // Загружаем текущего пользователя
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (!currentUser) {
-                console.log('Пользователь не найден, статистика не сохранена');
-                return;
-            }
-            
-            // Загружаем материал
-            const selectedMaterial = JSON.parse(localStorage.getItem('selectedMaterial'));
-            
+        function saveDisposalStatistic(materialId, selectedMaterial, currentUser) {
             // Загружаем существующую статистику
             let disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
             
@@ -582,19 +622,11 @@
             
             // Сохраняем обновленную статистику
             localStorage.setItem('trashsort_disposals', JSON.stringify(disposals));
-            
-            // Сохраняем информацию для мотивационной страницы
-            localStorage.setItem('last_disposed_material', JSON.stringify({
-                id: materialId,
-                name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
-                timestamp: new Date().toISOString()
-            }));
-            
             console.log('Статистика утилизации сохранена');
         }
         
-        // Делаем логотип кликабельным
-        document.addEventListener('DOMContentLoaded', function() {
+        // Инициализация клика по логотипу
+        function initLogoClick() {
             const logo = document.querySelector('.logo');
             if (logo) {
                 logo.style.cursor = 'pointer';
@@ -614,7 +646,20 @@
                     window.location.href = 'index.html';
                 };
             }
-        });
+        }
+        
+        // Функция проверки, была ли уже сохранена утилизация
+        function wasDisposalAlreadySaved(userId, materialId, materialName, minutesAgo = 5) {
+            const disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
+            const timeThreshold = new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
+            
+            return disposals.some(d => 
+                d.user_id === userId &&
+                d.material_id === materialId &&
+                d.material_name === materialName &&
+                d.timestamp > timeThreshold
+            );
+        }
     </script>
 </body>
 </html>
