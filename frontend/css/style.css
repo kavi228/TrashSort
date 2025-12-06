@@ -493,3 +493,16 @@ footer {
         width: 25%;
     }
 }
+
+/* Стили для логотипа */
+.logo {
+    color: #333333 !important; /* Исходный чёрный цвет */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.logo:hover {
+    color: #ffd700 !important; /* Жёлтый при наведении */
+    transform: scale(1.05);
+}

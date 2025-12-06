@@ -1145,16 +1145,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         };
         
-        // Анимация при наведении
-        logo.addEventListener('mouseenter', () => {
-            logo.style.color = '#ffed4e';
-            logo.style.transform = 'scale(1.05)';
-        });
-        
-        logo.addEventListener('mouseleave', () => {
-            logo.style.color = '#ffd700';
-            logo.style.transform = 'scale(1)';
-        });
     }
     console.log('DOM загружен - TrashSort v2.2 с поиском пользователей!');
     
