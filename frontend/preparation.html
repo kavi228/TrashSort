@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashSort - Подготовка к утилизации</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #ffffff;
+            color: #333333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            width: 100%;
+        }
+
+        header {
+            background-color: #ffffff;
+            padding: 15px 0;
+            border-bottom: 2px solid #ffd700;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: #ffd700;
+            transform: scale(1.05);
+        }
+
+        .nav-button {
+            font-size: 1.1rem;
+            background-color: #ffd700;
+            color: #000000;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .nav-button:hover {
+            background-color: #ffed4e;
+            transform: scale(1.05);
+        }
+
+        main {
+            flex: 1;
+            padding: 40px 20px;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            text-align: center;
+            color: #333333;
+        }
+
+        .preparation-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .material-header {
+            background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
+            color: #000;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .material-name {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .material-container {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .instructions-container {
+            background-color: #ffffff;
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            color: #333333;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ffd700;
+        }
+
+        .instructions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .instructions-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        .do-section, .dont-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+
+        .do-section:hover, .dont-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .do-section {
+            border-left: 5px solid #28a745;
+        }
+
+        .dont-section {
+            border-left: 5px solid #dc3545;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .section-icon {
+            font-size: 2rem;
+        }
+
+        .section-title-small {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .do-title {
+            color: #28a745;
+        }
+
+        .dont-title {
+            color: #dc3545;
+        }
+
+        .instruction-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .instruction-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            line-height: 1.4;
+        }
+
+        .instruction-list li:last-child {
+            border-bottom: none;
+        }
+
+        .instruction-icon {
+            font-size: 1.3rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .do-icon {
+            color: #28a745;
+        }
+
+        .dont-icon {
+            color: #dc3545;
+        }
+
+        .instruction-text {
+            color: #444;
+            font-size: 1.05rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #ffd700;
+        }
+
+        @media (max-width: 768px) {
+            .controls {
+                flex-direction: column;
+            }
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            min-width: 180px;
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #333333;
+            border: 2px solid #ffd700;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary {
+            background-color: #ffd700;
+            color: #000000;
+        }
+
+        .btn-primary:hover {
+            background-color: #ffed4e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #ffffff;
+            border-top: 2px solid #ffd700;
+            margin-top: 40px;
+            color: #333333;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+        }
+
+        @media (max-width: 768px) {
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .material-name {
+                font-size: 1.5rem;
+            }
+            
+            button {
+                width: 100%;
+                min-width: auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .instructions-container {
+                padding: 20px;
+            }
+            
+            .do-section, .dont-section {
+                padding: 20px;
+            }
+            
+            .section-title-small {
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo" id="mainLogo">♻️ TrashSort</div>
+                <button class="nav-button" onclick="window.history.back()">← Назад</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1 class="page-title">Подготовка к утилизации</h1>
+            
+            <div class="preparation-container">
+                <div class="material-header">
+                    <div class="material-name" id="materialName">Загрузка...</div>
+                    <div class="material-container" id="materialContainer">Контейнер</div>
+                </div>
+                
+                <div class="instructions-container">
+                    <h2 class="section-title">📋 Инструкция по подготовке</h2>
+                    
+                    <div class="instructions-grid">
+                        <div class="do-section">
+                            <div class="section-header">
+                                <div class="section-icon do-title">✅</div>
+                                <div class="section-title-small do-title">Что нужно делать</div>
+                            </div>
+                            <ul class="instruction-list" id="doList">
+                                <!-- Будут добавлены через JS -->
+                            </ul>
+                        </div>
+                        
+                        <div class="dont-section">
+                            <div class="section-header">
+                                <div class="section-icon dont-title">❌</div>
+                                <div class="section-title-small dont-title">Чего стоит избегать</div>
+                            </div>
+                            <ul class="instruction-list" id="dontList">
+                                <!-- Будут добавлены через JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <button class="btn-secondary" id="backBtn">Назад</button>
+                    <button class="btn-primary" id="nextBtn">Продолжить утилизацию</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>♻️ Система сортировки мусора TrashSort © 2025</p>
+        </div>
+    </footer>
+
+    <script>
+        // Получаем выбранный материал из localStorage
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Страница подготовки к утилизации загружена');
+            
+            // Загружаем выбранный материал
+            const selectedMaterial = JSON.parse(localStorage.getItem('selectedMaterial'));
+            
+            if (!selectedMaterial) {
+                alert('Сначала выберите материал для утилизации');
+                window.location.href = 'material_selection.html';
+                return;
+            }
+            
+            console.log('Выбранный материал:', selectedMaterial);
+            
+            // Обновляем заголовок
+            document.getElementById('materialName').textContent = selectedMaterial.name;
+            document.getElementById('materialContainer').textContent = selectedMaterial.container;
+            
+            // Определяем инструкции по подготовке в зависимости от типа материала
+            const preparationData = getPreparationData(selectedMaterial.id);
+            
+            // Отображаем списки "делать/не делать"
+            displayDoDontLists(preparationData.doList, preparationData.dontList);
+            
+            // Настраиваем кнопки
+            setupButtons(selectedMaterial.id);
+        });
+        
+        // Данные по подготовке для каждого типа материала
+        function getPreparationData(materialId) {
+            const preparationData = {
+                1: { // ПЭТ-бутылки
+                    doList: [
+                        "Промыть теплой водой с моющим средством",
+                        "Полностью высушить",
+                        "Снять все наклейки и термоусадочную пленку",
+                        "Сжать для экономии места",
+                        "Закрутить крышку обратно"
+                    ],
+                    dontList: [
+                        "Не оставлять остатки жидкости",
+                        "Не выбрасывать с этикетками",
+                        "Не смешивать с другим пластиком",
+                        "Не оставлять влажными",
+                        "Не выбрасывать бутылки из-под масла"
+                    ]
+                },
+                2: { // Бытовой пластик
+                    doList: [
+                        "Очистить от всех остатков химии",
+                        "Тщательно промыть несколько раз",
+                        "Удалить дозаторы и крышки",
+                        "Снять все этикетки",
+                        "Полностью высушить"
+                    ],
+                    dontList: [
+                        "Не смешивать с пищевым пластиком",
+                        "Не оставлять остатки средств",
+                        "Не выбрасывать аэрозольные баллоны",
+                        "Не сминать хрупкий пластик",
+                        "Не выбрасывать загрязненные емкости"
+                    ]
+                },
+                3: { // Пищевой пластик
+                    doList: [
+                        "Тщательно очистить от остатков пищи",
+                        "Помыть с моющим средством",
+                        "Удалить все наклейки и пленки",
+                        "Высушить",
+                        "Сложить по типу пластика"
+                    ],
+                    dontList: [
+                        "Не выбрасывать грязные контейнеры",
+                        "Не смешивать с бумагой",
+                        "Не оставлять жирные пятна",
+                        "Не выбрасывать одноразовые столовые приборы",
+                        "Не выбрасывать контейнеры от мяса и рыбы"
+                    ]
+                },
+                4: { // Пенопласт
+                    doList: [
+                        "Очистить от пыли и загрязнений",
+                        "Разобрать крупные блоки",
+                        "Снять все посторонние элементы",
+                        "Сложить в один пакет",
+                        "Плотно закрыть пакет"
+                    ],
+                    dontList: [
+                        "Не выбрасывать пенопласт от еды",
+                        "Не смешивать с другим мусором",
+                        "Не оставлять в незакрытом виде",
+                        "Не ломать на мелкие шарики",
+                        "Не выбрасывать загрязненный пенопласт"
+                    ]
+                },
+                5: { // Картон и бумага
+                    doList: [
+                        "Разобрать коробки на плоские листы",
+                        "Удалить все небумажные элементы",
+                        "Проверить на сухость",
+                        "Связать в пачки или сложить в коробки",
+                        "Убрать жирные и грязные участки"
+                    ],
+                    dontList: [
+                        "Не выбрасывать мокрую бумагу",
+                        "Не смешивать с пластиком",
+                        "Не оставлять скотч и стикеры",
+                        "Не выбрасывать ламинированную бумагу",
+                        "Не выбрасывать чеки и факсы"
+                    ]
+                },
+                6: { // Стекло
+                    doList: [
+                        "Тщательно промыть от остатков",
+                        "Удалить все этикетки",
+                        "Снять металлические крышки",
+                        "Высушить",
+                        "Сортировать по цвету"
+                    ],
+                    dontList: [
+                        "Не выбрасывать битое стекло",
+                        "Не смешивать с керамикой",
+                        "Не оставлять крышки",
+                        "Не выбрасывать стекло от окон",
+                        "Не выбрасывать хрусталь и оптическое стекло"
+                    ]
+                }
+            };
+            
+            return preparationData[materialId] || preparationData[1];
+        }
+        
+        // Отображение списков "делать/не делать"
+        function displayDoDontLists(doList, dontList) {
+            const doListElement = document.getElementById('doList');
+            const dontListElement = document.getElementById('dontList');
+            
+            doListElement.innerHTML = '';
+            dontListElement.innerHTML = '';
+            
+            doList.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="instruction-icon do-icon">✓</span><span class="instruction-text">${item}</span>`;
+                doListElement.appendChild(li);
+            });
+            
+            dontList.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span class="instruction-icon dont-icon">✗</span><span class="instruction-text">${item}</span>`;
+                dontListElement.appendChild(li);
+            });
+        }
+        
+        // Настройка кнопок
+        function setupButtons(materialId) {
+            const backBtn = document.getElementById('backBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            backBtn.addEventListener('click', function() {
+                // Проверяем, откуда пришли
+                const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
+                if (fromClassifier) {
+                    window.history.back();
+                } else {
+                    window.location.href = 'instructions.html';
+                }
+            });
+            
+            nextBtn.addEventListener('click', function() {
+                // Сохраняем статистику утилизации
+                saveDisposalStatistic(materialId);
+                // Переходим на страницу мотивации
+                window.location.href = 'motivation.html';
+            });
+        }
+        
+        // Сохранение статистики утилизации
+        function saveDisposalStatistic(materialId) {
+            // Загружаем текущего пользователя
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (!currentUser) {
+                console.log('Пользователь не найден, статистика не сохранена');
+                return;
+            }
+            
+            // Загружаем материал
+            const selectedMaterial = JSON.parse(localStorage.getItem('selectedMaterial'));
+            
+            // Загружаем существующую статистику
+            let disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
+            
+            // Добавляем новую запись
+            disposals.push({
+                id: Date.now(),
+                user_id: currentUser.id,
+                username: currentUser.username,
+                material_id: materialId,
+                material_name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Сохраняем обновленную статистику
+            localStorage.setItem('trashsort_disposals', JSON.stringify(disposals));
+            
+            // Сохраняем информацию для мотивационной страницы
+            localStorage.setItem('last_disposed_material', JSON.stringify({
+                id: materialId,
+                name: `${selectedMaterial.container}: ${selectedMaterial.name}`,
+                timestamp: new Date().toISOString()
+            }));
+            
+            console.log('Статистика утилизации сохранена');
+        }
+        
+        // Делаем логотип кликабельным
+        document.addEventListener('DOMContentLoaded', function() {
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.style.cursor = 'pointer';
+                logo.title = 'Вернуться на главную';
+                
+                logo.addEventListener('mouseenter', function() {
+                    this.style.color = '#ffd700';
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                logo.addEventListener('mouseleave', function() {
+                    this.style.color = '#333333';
+                    this.style.transform = 'scale(1)';
+                });
+                
+                logo.onclick = function() {
+                    window.location.href = 'index.html';
+                };
+            }
+        });
+    </script>
+</body>
+</html>

@@ -576,7 +576,7 @@ function initInstructionsPage() {
             });
             
             // Переходим на страницу мотивации
-            goToPage('motivation.html');
+            goToPage('preparation.html');
         };
     }
     
