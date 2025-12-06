@@ -1,4 +1,4 @@
-/* Основные стили */
+/* Сброс и базовые стили */
 * {
     margin: 0;
     padding: 0;
@@ -8,19 +8,19 @@
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #ffffff;
-    color: #333333; /* Темный текст для лучшей читаемости */
+    color: #333333;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
+/* Основной контейнер */
 .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
     width: 100%;
-    /**/
-        display: flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
@@ -32,6 +32,7 @@ header {
     padding: 15px 0;
     border-bottom: 2px solid #ffd700;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 100%;
 }
 
 nav {
@@ -39,13 +40,15 @@ nav {
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
     color: #333333;
-
 }
 
 .nav-button {
@@ -64,7 +67,26 @@ nav {
 .nav-button:hover {
     background-color: #ffed4e;
     transform: scale(1.05);
+}
 
+/* ЗАГОЛОВОК СТРАНИЦЫ ПОЛЬЗОВАТЕЛИ */
+.page-header {
+    width: 100%;
+    padding: 40px 20px 20px;
+    text-align: center;
+}
+
+.page-header h1 {
+    font-size: 2.5rem;
+    color: #333333;
+    margin-bottom: 10px;
+}
+
+.page-header p {
+    font-size: 1.1rem;
+    color: #666666;
+    max-width: 600px;
+    margin: 0 auto;
 }
 
 /* Основной контент */
@@ -73,8 +95,8 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
+    width: 100%;
+    padding: 0 20px;
 }
 
 .page-title {
@@ -82,8 +104,6 @@ main {
     margin-bottom: 40px;
     text-align: center;
     color: #333333;
-    /**/
-    text-align: center;
 }
 
 /* Страница 1: Выбор пользователя */
@@ -94,6 +114,7 @@ main {
     gap: 30px;
     width: 100%;
     max-width: 600px;
+    margin-top: 20px;
 }
 
 .user-list {
@@ -132,18 +153,19 @@ main {
     gap: 10px;
     width: 100%;
     margin-top: 20px;
-    justify-content: center; /* Горизонтальное выравнивание */
-    /* align-items: center; Вертикальное выравнивание (если нужно) */
+    justify-content: center;
 }
 
 .add-user-input {
     flex: 1;
-    padding: 12px;
+    padding: 12px 20px;
     border: 2px solid #ffd700;
     border-radius: 5px;
     background-color: #ffffff;
     color: #333333;
     font-size: 1rem;
+    min-height: 50px;
+    width: 100%;
 }
 
 .add-user-input::placeholder {
@@ -154,6 +176,8 @@ main {
     display: flex;
     gap: 20px;
     margin-top: 30px;
+    width: 100%;
+    justify-content: center;
 }
 
 .btn {
@@ -166,36 +190,78 @@ main {
     transition: all 0.3s;
 }
 
-.btn-primary {
-    background-color: #ffd700;
-    color: #000000;
-    padding: 15px 30px;
+.buttons-container {
+    display: flex;
+    justify-content: center; /* ИЗМЕНЕНО: теперь по центру */
+    align-items: center;
+    margin-top: 20px;
+    width: 100%;
+    gap: 20px; /* Добавлен отступ между кнопками */
+}
+
+/* Общие стили для ВСЕХ кнопок */
+.btn-primary, .warning-button, .btn-secondary, .btn-prim {
+    padding: 15px 50px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
-    margin-top: 20px;
     transition: all 0.3s;
-
-    margin-left: auto;
-    display: block;
-    width: fit-content;
+    width: 250px;
+    text-align: center;
+    min-height: 50px;
+    margin-top: 0;
+    font-size: 16px;
 }
 
-.btn-primary:hover {
-    background-color: #ffed4e;
+/* Primary кнопка (Далее) - по ПРАВОМУ краю */
+.btn-primary {
+    background-color: #ffd700;
+    color: #000000;
+    margin-left: auto; /* ТОЛЬКО ЭТО ИЗМЕНЕНИЕ - прижимает к правому краю */
+}
+
+
+.btn-user-primery {
+    background-color: #ffd700;
+    color: #000000;
+    display: block;
+    margin: 0 auto;
+}
+
+/* Warning кнопка - по ЛЕВОМУ краю */
+.warning-button {
+    background-color: #ff3333;
+    color: white;
+    margin-right: auto;
+}
+
+/* Secondary кнопка - по ЛЕВОМУ краю */
+.btn-secondary {
+    background-color: white;
+    color: #ffd700;
+    border: 2px solid #ffd700;
+    margin-right: auto;
+}
+
+/* Общие hover-эффекты для всех кнопок */
+.btn-primary:hover, .warning-button:hover, .btn-secondary:hover {
     transform: scale(1.05);
 }
 
-.btn-secondary {
-    background-color: #ffffff;
-    color: #333333;
-    border: 2px solid #ffd700;
+/* Уникальные hover-цвета */
+.btn-primary:hover {
+    background-color: #ffed4e;
+}
+
+.warning-button:hover {
+    background-color: #ff6666;
 }
 
 .btn-secondary:hover {
-    background-color: #ffffff;
-    transform: scale(1.05);
+    background-color: #ff3333;
+    color: white;
+    border-color: #ff3333;
 }
 
 /* Страница 2: Выбор материала */
@@ -265,17 +331,15 @@ main {
 
 .instructions-section {
     margin-bottom: 30px;
-    justify-content: center; /* Горизонтальное выравнивание */
+    justify-content: center;
 }
 
 .section-title {
     color: #333333;
     margin-bottom: 15px;
     font-size: 1.3rem;
-    /**/
     text-align: center;
 }
-
 
 .instructions-content {
     background-color: #f8f9fa;
@@ -290,23 +354,6 @@ main {
 .restrictions {
     background-color: #fff5f5;
     border-left: 4px solid #ff3333;
-}
-
-.warning-button {
-    background-color: #ff3333;
-    color: white;
-    padding: 15px 30px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-weight: bold;
-    margin-top: 20px;
-    transition: all 0.3s;
-}
-
-.warning-button:hover {
-    background-color: #ff6666;
-    transform: scale(1.05);
 }
 
 /* Страница 4: Статистика */
@@ -382,10 +429,15 @@ footer {
     margin-top: 40px;
     color: #333333;
     box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    width: 100%;
 }
 
 /* Адаптивность */
 @media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 2rem;
+    }
+    
     .page-title {
         font-size: 2rem;
     }
@@ -403,11 +455,24 @@ footer {
         flex-direction: column;
         gap: 15px;
     }
+    
+    .buttons-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn-primary, .warning-button, .btn-secondary {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
     .container {
         padding: 10px;
+    }
+    
+    .page-header h1 {
+        font-size: 1.8rem;
     }
     
     .page-title {
@@ -416,5 +481,15 @@ footer {
     
     .material-card {
         padding: 15px;
+    }
+    
+    .add-user-input {
+        padding: 14px;
+        font-size: 16px;
+        min-height: 52px;
+    }
+    
+    .nav-button {
+        width: 25%;
     }
 }

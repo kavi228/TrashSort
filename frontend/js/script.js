@@ -169,11 +169,7 @@ function initUserSelection() {
                    placeholder="Поиск пользователей..."
                    style="width: 100%; margin-bottom: 10px; padding-left: 40px;">
             <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.2rem;">
-                🔍
             </div>
-        </div>
-        <div id="searchResultsInfo" style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 10px; min-height: 20px;">
-            <!-- Здесь будет отображаться информация о результатах поиска -->
         </div>
     `;
     
@@ -214,16 +210,8 @@ function initUserSelection() {
             emptyMsg.className = 'user-item';
             emptyMsg.style.textAlign = 'center';
             emptyMsg.style.color = '#666';
-            emptyMsg.style.padding = '30px';
             
-            if (searchTerm.trim() !== '') {
-                emptyMsg.innerHTML = `
-                    <div style="margin-bottom: 10px; font-size: 2rem;">🔍</div>
-                    <div style="margin-bottom: 10px;">Не найдено пользователей по запросу</div>
-                    <div style="font-weight: bold; color: #ffd700; margin-bottom: 15px;">"${searchTerm}"</div>
-                    <div style="font-size: 0.9rem; color: #999;">Попробуйте другой запрос или добавьте нового пользователя</div>
-                `;
-            } else {
+            if (searchTerm.trim() == '') {
                 emptyMsg.textContent = 'Нет пользователей. Добавьте первого!';
             }
             
@@ -778,11 +766,7 @@ function initStatisticsPage() {
     
     // ========== КНОПКА СБРОСА СТАТИСТИКИ ПОЛЬЗОВАТЕЛЯ ==========
     const resetBtn = document.createElement('button');
-    resetBtn.className = 'btn btn-secondary';
-    resetBtn.style.marginTop = '20px';
-    resetBtn.style.backgroundColor = '#ff3333';
-    resetBtn.style.color = '#ffffff';
-    resetBtn.style.borderColor = '#FF4500';
+    resetBtn.className = 'btn warning-button';
     resetBtn.textContent = '🗑️ Сбросить мою статистику';
     resetBtn.onclick = function() {
         if (confirm(`ВНИМАНИЕ: Вы собираетесь удалить ВСЮ статистику пользователя "${currentUser.username}"!\n\nЭто действие: \n• Удалит все записи об утилизации\n• Нельзя будет отменить\n• Не затронет других пользователей\n\nПродолжить?`)) {
@@ -817,8 +801,9 @@ function initStatisticsPage() {
     if (actionButtons) {
         // Очищаем контейнер и добавляем новые кнопки
         actionButtons.innerHTML = '';
-        actionButtons.appendChild(quickContinueBtn);
-        actionButtons.appendChild(resetBtn);
+
+        actionButtons.appendChild(resetBtn);        // Сначала кнопка сброса
+        actionButtons.appendChild(quickContinueBtn); // Потом кнопка продолжения
     }
     
     // ========== ДОБАВЛЯЕМ ДОПОЛНИТЕЛЬНУЮ ИНФОРМАЦИЮ ==========
@@ -865,18 +850,6 @@ function initStatisticsPage() {
                     <div style="font-weight: bold; color: #FF5722;">${stats.total}</div>
                     <div style="font-size: 0.9rem; color: #ccc;">всего утилизаций</div>
                 </div>
-            </div>
-        `;
-    } else {
-        ecoImpactMessage = `
-            <h3 class="section-title">📊 Начните свой экологический путь!</h3>
-            <div class="instructions-content" style="text-align: center; padding: 20px;">
-                <p style="margin-bottom: 15px; font-size: 1.1rem;">С каждой утилизацией вы будете видеть здесь свой вклад в спасение планеты!</p>
-                <button onclick="goToPage('material_selection.html')" 
-                        style="background: #ffd700; color: #000; border: none; padding: 12px 30px; 
-                               border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1rem;">
-                    Начать утилизацию →
-                </button>
             </div>
         `;
     }
