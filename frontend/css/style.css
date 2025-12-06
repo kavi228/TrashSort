@@ -200,7 +200,7 @@ main {
 }
 
 /* Общие стили для ВСЕХ кнопок */
-.btn-primary, .warning-button, .btn-secondary, .btn-prim {
+.btn-primary, .warning-button, .btn-secondary, .btn-prim, .add-persone {
     padding: 15px 50px;
     border: none;
     border-radius: 5px;
@@ -214,6 +214,21 @@ main {
     font-size: 16px;
 }
 
+.add-persone {
+    background-color: #ffd700;
+    color: #000000;
+    margin-left: auto;
+    width: 50px;           /* Ширина равна высоте */
+    height: 50px;          /* Высота равна ширине */
+    padding: 0;            /* Убираем отступы */
+    border-radius: 8px;    /* Скругление углов */
+    font-size: 25px;
+    display: flex;         /* Для центрирования содержимого */
+    align-items: center;   /* Вертикальное центрирование */
+    justify-content: center; /* Горизонтальное центрирование */
+    min-height: auto;      /* Переопределяем min-height из общего класса */
+}
+
 /* Primary кнопка (Далее) - по ПРАВОМУ краю */
 .btn-primary {
     background-color: #ffd700;
@@ -223,10 +238,14 @@ main {
 
 
 .btn-user-primery {
+    padding: 15px 50px;
+    border-radius: 5px;
+    width: 250px;
     background-color: #ffd700;
     color: #000000;
     display: block;
     margin: 0 auto;
+    font-size: 16px;
 }
 
 /* Warning кнопка - по ЛЕВОМУ краю */

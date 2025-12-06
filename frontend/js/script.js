@@ -529,10 +529,7 @@ function initInstructionsPage() {
     // Кнопка "Есть триггер"
     if (hasTriggerBtn) {
         hasTriggerBtn.onclick = function() {
-            if (confirm('Вы уверены, что у предмета есть особенности, запрещающие утилизацию?')) {
-                alert('Предмет не подлежит утилизации через эту систему. Обратитесь в специальную службу.');
-                goToPage('user_selection.html');
-            }
+            goToPage('user_selection.html');
         };
     }
     
@@ -797,9 +794,6 @@ function initStatisticsPage() {
             
             // Удаляем информацию о последней утилизации
             localStorage.removeItem('last_disposed_material');
-            
-            // Показываем сообщение и перезагружаем страницу
-            alert(`Статистика пользователя "${currentUser.username}" полностью сброшена!`);
             
             // Перезагружаем страницу
             location.reload();
