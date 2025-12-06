@@ -1068,18 +1068,149 @@ function initMotivationPage() {
     materialCount.textContent = materialDisposals;
     todayCount.textContent = todayDisposals;
     
+    const TIMEOUT_SECONDS = 15;
+    let timeLeft = TIMEOUT_SECONDS;
+    let inactivityTimer;
+    
+    // Создаем элемент для отображения таймера
+    const timerElement = document.createElement('div');
+    timerElement.id = 'autoRedirectTimer';
+    timerElement.style.cssText = `
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: rgba(255, 215, 0, 0.9);
+        color: #000;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    `;
+    
+    const timerIcon = document.createElement('span');
+    timerIcon.textContent = '⏱️';
+    
+    const timerText = document.createElement('span');
+    timerText.id = 'timerCountdown';
+    timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
+    
+    timerElement.appendChild(timerIcon);
+    timerElement.appendChild(timerText);
+    document.body.appendChild(timerElement);
+    
+    // Функция для сброса таймера при активности
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        timeLeft = TIMEOUT_SECONDS;
+        updateTimerDisplay();
+        
+        inactivityTimer = setTimeout(() => {
+            redirectToMainPage();
+        }, TIMEOUT_SECONDS * 1000);
+    }
+    
+    // Функция обновления отображения таймера
+    function updateTimerDisplay() {
+        timerText.textContent = `Автовозврат через: ${timeLeft} сек`;
+        
+        // Меняем цвет при малом времени
+        if (timeLeft <= 5) {
+            timerElement.style.background = 'rgba(255, 51, 51, 0.9)';
+            timerElement.style.color = 'white';
+        } else if (timeLeft <= 10) {
+            timerElement.style.background = 'rgba(255, 193, 7, 0.9)';
+        }
+    }
+    
+    // Функция уменьшения таймера каждую секунду
+    const countdownInterval = setInterval(() => {
+        timeLeft--;
+        updateTimerDisplay();
+        
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+        }
+    }, 1000);
+    
+    // Функция перенаправления на главную
+    function redirectToMainPage() {
+        console.log('Автоматический возврат на главную страницу');
+        
+        // Плавное затемнение страницы
+        document.body.style.transition = 'opacity 0.5s';
+        document.body.style.opacity = '0.5';
+        
+        // Показываем сообщение
+        const message = document.createElement('div');
+        message.style.cssText = `
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 9999;
+            border: 3px solid #ffd700;
+        `;
+        message.innerHTML = `
+            <div style="font-size: 2rem; margin-bottom: 15px;">⏰</div>
+            <h3>Возвращаем на главную...</h3>
+            <p>Спасибо за использование TrashSort!</p>
+        `;
+        document.body.appendChild(message);
+        
+        // Через 2 секунды переходим на главную
+        setTimeout(() => {
+            window.location.href = 'index.html';
+        }, 2000);
+    }
+    
+    // События, которые сбрасывают таймер
+    const activityEvents = [
+        'mousemove', 'keydown', 'click', 'scroll', 'touchstart'
+    ];
+    
+    activityEvents.forEach(event => {
+        window.addEventListener(event, resetInactivityTimer, { passive: true });
+    });
+    
+    // Инициализация таймера
+    resetInactivityTimer();
+    
+    // ========== ОБРАБОТЧИКИ КНОПОК ==========
     // Обработчики кнопок
     if (continueBtn) {
         continueBtn.onclick = function() {
+            // Сбрасываем таймер при ручном переходе
+            clearTimeout(inactivityTimer);
+            clearInterval(countdownInterval);
+            timerElement.remove();
             goToPage('material_selection.html');
         };
     }
     
     if (statsBtn) {
         statsBtn.onclick = function() {
+            // Сбрасываем таймер при ручном переходе
+            clearTimeout(inactivityTimer);
+            clearInterval(countdownInterval);
+            timerElement.remove();
             goToPage('statistics.html');
         };
     }
+    
+    // Очистка при разгрузке страницы
+    window.addEventListener('beforeunload', function() {
+        clearTimeout(inactivityTimer);
+        clearInterval(countdownInterval);
+    });
 }
 
 // ========== ГЛАВНАЯ СТРАНИЦА ==========
