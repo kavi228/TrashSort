@@ -300,13 +300,7 @@ function initUserSelection() {
             };
         });
         
-        // Автовыбор первого пользователя если нет текущего
-        if (!currentUser && filteredUsers.length > 0) {
-            const firstUserItem = document.querySelector('.user-item:not([style*="text-align: center"])');
-            if (firstUserItem) {
-                firstUserItem.click();
-            }
-        }
+       
     }
     
     // ========== НАСТРОЙКА ПОИСКА ==========
@@ -383,15 +377,41 @@ function initUserSelection() {
     }
     
     // Кнопка "Далее"
-    if (nextBtn) {
-        nextBtn.onclick = function() {
-            if (!currentUser) {
-                alert('Выберите пользователя');
-                return;
-            }
+    // Кнопка "Далее"
+if (nextBtn) {
+    nextBtn.onclick = function() {
+        // ЯВНАЯ проверка - есть ли ВИЗУАЛЬНО выбранный пользователь
+        const selectedUserElement = document.querySelector('.user-item.selected');
+        
+        if (!selectedUserElement) {
+            alert('❌ ВЫБЕРИТЕ ПОЛЬЗОВАТЕЛЯ!\n\nНажмите на имя пользователя в списке выше.');
+            
+            // Визуальная обратная связь
+            userList.style.border = '3px solid #ff3333';
+            userList.style.boxShadow = '0 0 10px rgba(255, 0, 0, 0.3)';
+            
+            setTimeout(() => {
+                userList.style.border = '2px solid #ffd700';
+                userList.style.boxShadow = 'none';
+            }, 2000);
+            
+            return;
+        }
+        
+        // Убедимся, что currentUser соответствует выбранному элементу
+        const userId = parseInt(selectedUserElement.dataset.id);
+        const selectedUser = allUsers.find(u => u.id === userId);
+        
+        if (selectedUser) {
+            currentUser = selectedUser;
+            saveData('currentUser', currentUser);
+            console.log('Переход для пользователя:', currentUser.username);
             goToPage('material_selection.html');
-        };
-    }
+        } else {
+            alert('Ошибка: пользователь не найден');
+        }
+    };
+}
     
     // Кнопка "Назад"
     if (backBtn) {
