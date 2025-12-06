@@ -348,6 +348,17 @@ function initUserSelection() {
 function initMaterialSelection() {
     console.log('Инициализация страницы выбора материала');
     
+    const fromClassifierNotSuitable = localStorage.getItem('fromClassifierNotSuitable') === 'true';
+    if (fromClassifierNotSuitable) {
+        // Показываем сообщение, что нужно выбрать другой материал
+        setTimeout(() => {
+            alert('Вы указали, что предмет не подходит для предложенного контейнера. Пожалуйста, выберите подходящий контейнер из списка.');
+        }, 500);
+        
+        // Очищаем флаг
+        localStorage.removeItem('fromClassifierNotSuitable');
+    }
+    
     const materialsContainer = document.getElementById('materialsContainer');
     const nextBtn = document.getElementById('nextBtn');
     const backBtn = document.getElementById('backBtn');

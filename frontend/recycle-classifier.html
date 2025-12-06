@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrashSort - Классификатор мусора</title>
     <style>
-        /* Основные стили */
+        /* Все предыдущие стили остаются без изменений... */
         * {
             margin: 0;
             padding: 0;
@@ -28,7 +28,6 @@
             width: 100%;
         }
 
-        /* Шапка и навигация */
         header {
             background-color: #ffffff;
             padding: 15px 0;
@@ -47,6 +46,13 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: #333333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            color: #ffd700;
+            transform: scale(1.05);
         }
 
         .nav-button {
@@ -66,7 +72,6 @@
             transform: scale(1.05);
         }
 
-        /* Основной контент */
         main {
             flex: 1;
             padding: 40px 20px;
@@ -79,7 +84,6 @@
             color: #333333;
         }
 
-        /* Контент классификатора */
         .classifier-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -116,7 +120,6 @@
             text-align: center;
         }
 
-        /* Область загрузки */
         .upload-area {
             border: 2px dashed #ffd700;
             border-radius: 10px;
@@ -160,7 +163,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* Элементы управления */
         .controls {
             display: flex;
             gap: 15px;
@@ -206,7 +208,6 @@
             transform: none !important;
         }
 
-        /* Индикатор загрузки */
         .loading {
             text-align: center;
             padding: 20px;
@@ -228,7 +229,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Контейнеры */
         .container-types {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -269,7 +269,6 @@
             color: #666666;
         }
 
-        /* Результаты */
         .initial-message {
             background-color: #f8f9fa;
             border-radius: 8px;
@@ -354,7 +353,49 @@
             color: #DC143C;
         }
 
-        /* Футер */
+        /* Новые стили для кнопок действий */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .action-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .btn-suitable {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .btn-suitable:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-not-suitable {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-not-suitable:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
+        }
+
         footer {
             text-align: center;
             padding: 20px;
@@ -365,7 +406,6 @@
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Адаптивность */
         @media (max-width: 768px) {
             .page-title {
                 font-size: 2rem;
@@ -376,6 +416,14 @@
             }
             
             .btn-primary, .btn-secondary {
+                width: 100%;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .action-btn {
                 width: 100%;
             }
         }
@@ -402,7 +450,7 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo">♻️ TrashSort</div>
+                <div class="logo" id="mainLogo">♻️ TrashSort</div>
                 <button class="nav-button" onclick="window.history.back()">← Назад</button>
             </nav>
         </div>
@@ -475,7 +523,7 @@
                             <p>1. Загрузите фотографию мусора, нажав на область загрузки</p>
                             <p>2. Нажмите кнопку "Определить тип мусора"</p>
                             <p>3. ИИ определит подходящий контейнер</p>
-                            <p>4. Ознакомьтесь с инструкциями по утилизации</p>
+                            <p>4. Выберите дальнейшее действие</p>
                         </div>
                     </div>
                 </div>
@@ -499,6 +547,10 @@
         const loading = document.getElementById('loading');
         const resultsContainer = document.getElementById('resultsContainer');
         const containerTypes = document.querySelectorAll('.container-type');
+        
+        // Переменные для хранения результата классификации
+        let lastPrediction = null;
+        let lastPredictionData = null;
         
         // Модель и метаданные
         let model, maxPredictions;
@@ -667,6 +719,8 @@
                 
                 // Сбрасываем предыдущие результаты
                 resetContainerHighlights();
+                lastPrediction = null;
+                lastPredictionData = null;
             };
             reader.readAsDataURL(file);
         }
@@ -691,6 +745,13 @@
                 
                 const prediction = await model.predict(image);
                 displayResults(prediction);
+                
+                // Сохраняем результат для использования в кнопках
+                lastPrediction = prediction;
+                lastPredictionData = {
+                    imageSrc: imagePreview.src,
+                    prediction: prediction
+                };
                 
             } catch (error) {
                 console.error('Ошибка классификации:', error);
@@ -733,6 +794,15 @@
                         ${description.negative.map(item => `<li class="negative">${item}</li>`).join('')}
                     </ul>
                 </div>
+                
+                <div class="action-buttons" id="actionButtons">
+                    <button class="action-btn btn-suitable" id="btnSuitable">
+                        ✅ Мой предмет подходит для утилизации
+                    </button>
+                    <button class="action-btn btn-not-suitable" id="btnNotSuitable">
+                        ❌ Мой предмет не подходит для утилизации
+                    </button>
+                </div>
             `;
             
             resultsContainer.innerHTML = '';
@@ -740,10 +810,45 @@
             
             highlightContainer(className);
             
+            // Добавляем обработчики для новых кнопок
+            document.getElementById('btnSuitable').addEventListener('click', () => {
+                handleSuitableItem(description.title, className);
+            });
+            
+            document.getElementById('btnNotSuitable').addEventListener('click', () => {
+                handleNotSuitableItem();
+            });
+            
             console.log("Все предсказания:");
             predictions.forEach(pred => {
                 console.log(`${pred.className}: ${Math.round(pred.probability * 100)}%`);
             });
+        }
+        
+        // Обработка кнопки "Подходит для утилизации"
+        function handleSuitableItem(containerTitle, className) {
+            // Сохраняем информацию о материале для инструкций
+            const materialInfo = {
+                container: containerTitle.split(': ')[0],
+                name: containerTitle.split(': ')[1] || containerTitle,
+                className: className
+            };
+            
+            // Сохраняем в localStorage для использования на странице инструкций
+            localStorage.setItem('selectedMaterial', JSON.stringify(materialInfo));
+            localStorage.setItem('fromClassifier', 'true');
+            
+            // Переходим на страницу инструкций
+            window.location.href = 'instructions.html';
+        }
+        
+        // Обработка кнопки "Не подходит для утилизации"
+        function handleNotSuitableItem() {
+            // Сохраняем флаг, что пользователь выбрал "не подходит"
+            localStorage.setItem('fromClassifierNotSuitable', 'true');
+            
+            // Переходим на страницу выбора контейнеров
+            window.location.href = 'material_selection.html';
         }
         
         // Подсветка соответствующего контейнера
@@ -779,10 +884,12 @@
                     <p>1. Загрузите фотографию мусора, нажав на область загрузки</p>
                     <p>2. Нажмите кнопку "Определить тип мусора"</p>
                     <p>3. ИИ определит подходящий контейнер</p>
-                    <p>4. Ознакомьтесь с инструкциями по утилизации</p>
+                    <p>4. Выберите дальнейшее действие</p>
                 </div>
             `;
             resetContainerHighlights();
+            lastPrediction = null;
+            lastPredictionData = null;
         });
         
         // Инициализация информации о контейнерах
@@ -804,9 +911,33 @@
             }
         }
         
+        // Делаем логотип кликабельным
+        function initLogoClick() {
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.style.cursor = 'pointer';
+                logo.title = 'Вернуться на главную';
+                
+                logo.addEventListener('mouseenter', function() {
+                    this.style.color = '#ffd700';
+                    this.style.transform = 'scale(1.05)';
+                });
+                
+                logo.addEventListener('mouseleave', function() {
+                    this.style.color = '#333333';
+                    this.style.transform = 'scale(1)';
+                });
+                
+                logo.onclick = function() {
+                    window.location.href = 'index.html';
+                };
+            }
+        }
+        
         // Инициализация при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             initContainerInfo();
+            initLogoClick();
         });
     </script>
 </body>
