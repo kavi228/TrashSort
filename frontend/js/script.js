@@ -1,5 +1,5 @@
 // УПРОЩЕННАЯ ВЕРСИЯ 2.0 - С УДАЛЕНИЕМ ПОЛЬЗОВАТЕЛЕЙ И ИНДИВИДУАЛЬНОЙ СТАТИСТИКОЙ
-console.log('TrashSort JS loaded - Версия 2.0');
+console.log('TrashSort JS loaded - Версия 2.2 с поиском пользователей');
 
 // ========== ДАННЫЕ ==========
 const materials = [
@@ -56,6 +56,7 @@ const materials = [
 // ========== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
 let currentUser = null;
 let selectedMaterial = null;
+let allUsers = []; // Будет хранить всех пользователей для поиска
 
 // ========== ОСНОВНЫЕ ФУНКЦИИ ==========
 
@@ -91,6 +92,11 @@ function deleteUser(userId) {
         currentUser = null;
         localStorage.removeItem('currentUser');
     }
+    
+    // Удаляем все утилизации этого пользователя
+    let disposals = loadData('trashsort_disposals') || [];
+    disposals = disposals.filter(d => d.user_id !== userId);
+    saveData('trashsort_disposals', disposals);
     
     return users;
 }
@@ -141,35 +147,115 @@ function initUserSelection() {
     if (!userList) return;
     
     // Загружаем пользователей из localStorage
-    let users = loadData('trashsort_users') || [
+    allUsers = loadData('trashsort_users') || [
         { id: 1, username: "Алексей" },
         { id: 2, username: "Мария" },
         { id: 3, username: "Дмитрий" }
     ];
     
-    // Отображаем пользователей
-    function renderUsers() {
+    // Создаем контейнер для поиска с иконкой лупы
+    const searchContainer = document.createElement('div');
+    searchContainer.className = 'search-container';
+    searchContainer.style.cssText = `
+        margin-bottom: 20px;
+        width: 100%;
+        position: relative;
+    `;
+    
+    searchContainer.innerHTML = `
+        <div style="position: relative;">
+            <input type="text" 
+                   id="userSearch" 
+                   class="add-user-input" 
+                   placeholder="Поиск пользователей..."
+                   style="width: 100%; margin-bottom: 10px; padding-left: 40px;">
+            <div style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #999; font-size: 1.2rem;">
+                🔍
+            </div>
+        </div>
+        <div id="searchResultsInfo" style="text-align: center; font-size: 0.9rem; color: #666; margin-bottom: 10px; min-height: 20px;">
+            <!-- Здесь будет отображаться информация о результатах поиска -->
+        </div>
+    `;
+    
+    // Вставляем поиск перед списком пользователей
+    userList.parentNode.insertBefore(searchContainer, userList);
+    
+    // Отображаем пользователей с фильтрацией
+    function renderUsers(searchTerm = '') {
         userList.innerHTML = '';
         
-        if (users.length === 0) {
+        // Фильтруем пользователей по поисковому запросу
+        let filteredUsers = allUsers;
+        if (searchTerm.trim() !== '') {
+            const term = searchTerm.toLowerCase();
+            filteredUsers = allUsers.filter(user => 
+                user.username.toLowerCase().includes(term)
+            );
+        }
+        
+        // Обновляем информацию о результатах поиска
+        const searchResultsInfo = document.getElementById('searchResultsInfo');
+        if (searchResultsInfo) {
+            if (searchTerm.trim() !== '') {
+                if (filteredUsers.length === 0) {
+                    searchResultsInfo.innerHTML = `<span style="color: #ff3333">Не найдено пользователей по запросу "${searchTerm}"</span>`;
+                } else if (filteredUsers.length === 1) {
+                    searchResultsInfo.innerHTML = `Найден 1 пользователь`;
+                } else {
+                    searchResultsInfo.innerHTML = `Найдено ${filteredUsers.length} пользователей`;
+                }
+            } else {
+                searchResultsInfo.innerHTML = '';
+            }
+        }
+        
+        if (filteredUsers.length === 0) {
             const emptyMsg = document.createElement('div');
             emptyMsg.className = 'user-item';
             emptyMsg.style.textAlign = 'center';
             emptyMsg.style.color = '#666';
-            emptyMsg.textContent = 'Нет пользователей. Добавьте первого!';
+            emptyMsg.style.padding = '30px';
+            
+            if (searchTerm.trim() !== '') {
+                emptyMsg.innerHTML = `
+                    <div style="margin-bottom: 10px; font-size: 2rem;">🔍</div>
+                    <div style="margin-bottom: 10px;">Не найдено пользователей по запросу</div>
+                    <div style="font-weight: bold; color: #ffd700; margin-bottom: 15px;">"${searchTerm}"</div>
+                    <div style="font-size: 0.9rem; color: #999;">Попробуйте другой запрос или добавьте нового пользователя</div>
+                `;
+            } else {
+                emptyMsg.textContent = 'Нет пользователей. Добавьте первого!';
+            }
+            
             userList.appendChild(emptyMsg);
             return;
         }
         
-        users.forEach(user => {
+        filteredUsers.forEach(user => {
             const userItem = document.createElement('div');
             userItem.className = 'user-item';
             userItem.dataset.id = user.id;
             userItem.dataset.username = user.username;
             
+            // Подсветка текста поиска если есть
+            let displayName = user.username;
+            if (searchTerm.trim() !== '') {
+                const term = searchTerm.toLowerCase();
+                const name = user.username;
+                const matchIndex = name.toLowerCase().indexOf(term);
+                
+                if (matchIndex !== -1) {
+                    const before = name.substring(0, matchIndex);
+                    const match = name.substring(matchIndex, matchIndex + term.length);
+                    const after = name.substring(matchIndex + term.length);
+                    displayName = `${before}<strong style="color: #ffd700">${match}</strong>${after}`;
+                }
+            }
+            
             userItem.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                    <span>${user.username}</span>
+                    <span>${displayName}</span>
                     <button class="delete-user-btn" data-id="${user.id}" 
                             style="background: #ff3333; color: white; border: none; 
                                    border-radius: 3px; padding: 3px 8px; cursor: pointer;
@@ -209,10 +295,14 @@ function initUserSelection() {
                 
                 if (confirm(`Удалить пользователя "${userName}"?`)) {
                     // Удаляем пользователя
-                    users = deleteUser(userId);
+                    allUsers = deleteUser(userId);
+                    
+                    // Получаем текущий поисковый запрос
+                    const searchInput = document.getElementById('userSearch');
+                    const currentSearch = searchInput ? searchInput.value : '';
                     
                     // Перерисовываем список
-                    renderUsers();
+                    renderUsers(currentSearch);
                     
                     // Если удалили текущего пользователя, сбрасываем выбор
                     if (currentUser && currentUser.id === userId) {
@@ -224,11 +314,39 @@ function initUserSelection() {
         });
         
         // Автовыбор первого пользователя если нет текущего
-        if (!currentUser && users.length > 0) {
+        if (!currentUser && filteredUsers.length > 0) {
             const firstUserItem = document.querySelector('.user-item:not([style*="text-align: center"])');
             if (firstUserItem) {
                 firstUserItem.click();
             }
+        }
+    }
+    
+    // ========== НАСТРОЙКА ПОИСКА ==========
+    const searchInput = document.getElementById('userSearch');
+    if (searchInput) {
+        // Обработчик ввода в поле поиска
+        searchInput.addEventListener('input', function() {
+            renderUsers(this.value);
+        });
+        
+        // Обработчик очистки поиска при нажатии Escape
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                this.value = '';
+                renderUsers('');
+                this.blur();
+            }
+        });
+        
+        // Обработчик клика по иконке поиска
+        const searchIcon = searchInput.parentNode.querySelector('div');
+        if (searchIcon) {
+            searchIcon.style.cursor = 'pointer';
+            searchIcon.title = 'Нажмите для фокуса на поле поиска';
+            searchIcon.onclick = function() {
+                searchInput.focus();
+            };
         }
     }
     
@@ -244,7 +362,7 @@ function initUserSelection() {
             }
             
             // Проверяем, нет ли уже пользователя с таким именем
-            const existingUser = users.find(u => u.username.toLowerCase() === username.toLowerCase());
+            const existingUser = allUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
             if (existingUser) {
                 alert('Пользователь с таким именем уже существует!');
                 return;
@@ -255,9 +373,16 @@ function initUserSelection() {
                 username: username
             };
             
-            users.push(newUser);
-            saveData('trashsort_users', users);
-            renderUsers();
+            allUsers.push(newUser);
+            saveData('trashsort_users', allUsers);
+            
+            // Очищаем поле поиска при добавлении нового пользователя
+            const searchInput = document.getElementById('userSearch');
+            if (searchInput) {
+                searchInput.value = '';
+            }
+            
+            renderUsers('');
             input.value = '';
             
             // Выбираем нового пользователя
@@ -291,6 +416,7 @@ function initUserSelection() {
     // Загружаем текущего пользователя из localStorage
     currentUser = loadData('currentUser');
     
+    // Первоначальная отрисовка
     renderUsers();
 }
 
@@ -764,6 +890,7 @@ function initStatisticsPage() {
         statsContainer.appendChild(additionalInfo);
     }
 }
+
 // ========== СТРАНИЦА 5: МОТИВАЦИЯ ==========
 function initMotivationPage() {
     console.log('Инициализация страницы мотивации');
@@ -949,14 +1076,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 100);
 });
 
-// Глобальные функции для кнопок в HTML
-window.goToPage = goToPage;
-window.goBack = function() {
-    window.history.back();
-};
-window.deleteUser = deleteUser;
-window.getUserStatistics = getUserStatistics;
-
 // ========== ЗАПУСК ПРИ ЗАГРУЗКЕ ==========
 document.addEventListener('DOMContentLoaded', function() {
     // ========== ДЕЛАЕМ ЛОГОТИП КЛИКАБЕЛЬНЫМ ==========
@@ -987,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', function() {
             logo.style.transform = 'scale(1)';
         });
     }
-    console.log('DOM загружен - TrashSort v2.1 с мотивацией!');
+    console.log('DOM загружен - TrashSort v2.2 с поиском пользователей!');
     
     // Определяем текущую страницу
     const path = window.location.pathname;
