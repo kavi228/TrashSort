@@ -132,13 +132,11 @@ function initUserSelection() {
     // Создаем поиск
     if (searchContainer) {
         searchContainer.innerHTML = `
-            <div style="position: relative; width: 100%;">
-                <input type="text" 
-                       id="userSearch" 
-                       class="add-user-input" 
-                       placeholder="🔍 Поиск пользователей..."
-                       style="width: 100%; margin-bottom: 10px; padding-left: 40px;">
-            </div>
+            <input type="text" 
+            id="userSearch" 
+            class="add-user-input" 
+            placeholder="Поиск пользователей..."
+            style="width: 100%; margin-bottom: 10px; padding: 16px 20px; border: 2px solid #ffd700; border-radius: 10px;">
         `;
     }
     
@@ -640,7 +638,7 @@ function initMotivationPage() {
     const materialNameOnly = lastDisposal.name.split(': ')[1] || lastDisposal.name;
     pageTitle.innerHTML = `
         <div style="text-align: center; margin-bottom: 15px;">
-            <div style="font-size: 2.5rem; margin-bottom: 10px;">🎉</div>
+            <div style="font-size: 2.5rem; margin-bottom: 10px;"></div>
             <div style="font-size: 1.8rem; font-weight: bold; color: #333; margin-bottom: 5px;">
                 Отличная работа!
             </div>
@@ -749,7 +747,7 @@ function initMotivationPage() {
     }
     
     // Таймер автовозврата
-    const TIMEOUT_SECONDS = 20;
+    const TIMEOUT_SECONDS = 15;
     let timeLeft = TIMEOUT_SECONDS;
     let inactivityTimer;
     

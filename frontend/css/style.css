@@ -253,7 +253,7 @@ main {
     color: #000000;
     display: block;
     margin: 0 auto;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .warning-button {
@@ -280,9 +280,9 @@ main {
 }
 
 .btn-secondary:hover {
-    background-color: #ff3333;
+    background-color: #ffed4e;
     color: white;
-    border-color: #ff3333;
+    border-color: #ffed4e;
 }
 
 /* Страница 2: Выбор материала */
@@ -482,11 +482,19 @@ footer {
     transform: scale(1.1);
 }
 
-/* Поиск пользователей */
 .search-container {
-    margin-bottom: 15px;
-    width: 100%;
+    margin-bottom: 18px;
+    width: 100vw;
     position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+}
+
+/* Для поля ввода поиска */
+#userSearch {
+    width: 100%; 
 }
 
 /* Анимация пульсации */
