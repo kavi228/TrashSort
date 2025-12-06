@@ -366,7 +366,7 @@ function initMaterialSelection() {
     // Добавляем кнопку с фотоаппаратом в углу
     if (cornerButton) {
         cornerButton.onclick = function() {
-            goToPage('empty.html');
+            goToPage('recycle-classifier.html');
         };
     }
     
