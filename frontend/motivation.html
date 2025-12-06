@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrashSort - Спасибо!</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <style>
+        .motivation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .material-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .motivation-text {
+            font-size: 1.5rem;
+            line-height: 1.6;
+            margin: 30px 0;
+            padding: 30px;
+            background-color: white;
+            border-radius: 15px;
+            border-left: 5px solid #ffd700;
+        }
+        
+        .environment-fact {
+            background-color: white;
+            border-left: 5px solid #4CAF50;
+            margin-top: 30px;
+            padding: 20px;
+            text-align: left;
+        }
+        
+        .next-steps {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .stats-preview {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        
+        .stat-mini {
+            background-color: white;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            min-width: 120px;
+        }
+        
+        .stat-mini-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffd700;
+            display: block;
+        }
+        
+        .stat-mini-label {
+            font-size: 0.8rem;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <div class="logo">♻️ TrashSort</div>
+                
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <div class="motivation-container">
+                <div class="material-icon" id="materialIcon">
+                    <!-- Иконка материала -->
+                </div>
+                
+                <h1 class="page-title" id="pageTitle">
+                    Отличная работа!
+                </h1>
+                
+                <div class="motivation-text" id="motivationText">
+                    <!-- Мотивирующая фраза -->
+                </div>
+                
+                <div class="stats-preview">
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" id="totalCount">0</span>
+                        <span class="stat-mini-label">Всего утилизаций</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" id="materialCount">0</span>
+                        <span class="stat-mini-label">Этот материал</span>
+                    </div>
+                    <div class="stat-mini">
+                        <span class="stat-mini-value" id="todayCount">0</span>
+                        <span class="stat-mini-label">Сегодня</span>
+                    </div>
+                </div>
+                
+                <div class="environment-fact" id="environmentFact">
+                    <!-- Экологический факт -->
+                </div>
+                
+                <div class="next-steps">
+                    <button id="continueBtn" class="btn btn-primary">
+                        Продолжить сортировку →
+                    </button>
+                    <button id="statsBtn" class="btn btn-secondary">
+                        Посмотреть статистику
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+<footer>
+        <div class="container">
+            <p>♻️ Система сортировки мусора TrashSort © 2025</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

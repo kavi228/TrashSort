@@ -49,6 +49,7 @@ nav {
 }
 
 .nav-button {
+    font-size: 1.1rem;
     background-color: #ffd700;
     color: #000000;
     border: none;
@@ -193,7 +194,8 @@ main {
 }
 
 .btn-secondary:hover {
-    background-color: #f8f9fa;
+    background-color: #ffffff;
+    transform: scale(1.05);
 }
 
 /* Страница 2: Выбор материала */
