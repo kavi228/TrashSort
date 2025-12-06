@@ -4,128 +4,52 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrashSort - Подготовка к утилизации</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <style>
-        *{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #ffffff;
-            color: #333333;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            max-width: 1200px;
+        .preparation-container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            width: 100%;
         }
-
-        header {
-            background-color: #ffffff;
-            padding: 15px 0;
-            border-bottom: 2px solid #ffd700;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333333;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .logo:hover {
-            color: #ffd700;
-            transform: scale(1.05);
-        }
-
-        .nav-button {
-            font-size: 1.1rem;
-            background-color: #ffd700;
-            color: #000000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .nav-button:hover {
-            background-color: #ffed4e;
-            transform: scale(1.05);
-        }
-
-        main {
-            flex: 1;
-            padding: 40px 20px;
-        }
-
-        .page-title {
-            font-size: 2.5rem;
-            margin-bottom: 30px;
-            text-align: center;
-            color: #333333;
-        }
-
-        .preparation-container {
+        
+        .material-header {
             max-width: 800px;
             margin: 0 auto;
-        }
-
-        .material-header {
-            background: linear-gradient(135deg, #ffd700 0%, #ffc107 100%);
-            color: #000;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 15px;
             text-align: center;
-            margin-bottom: 30px;
         }
 
+        
         .material-name {
-            font-size: 2rem;
+            font-size: 1.5rem;
             font-weight: bold;
             margin-bottom: 5px;
         }
-
+        
         .material-container {
-            font-size: 1.2rem;
+            font-size: 1rem;
             opacity: 0.9;
         }
-
+        
         .instructions-container {
             background-color: #ffffff;
             border: 2px solid #ffd700;
             border-radius: 15px;
-            padding: 30px;
-            margin-bottom: 40px;
+            padding: 20px; /* было 30px */
+            margin-bottom: 20px; /* было 40px */
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-
+        
         .section-title {
             color: #333333;
-            margin-bottom: 25px;
-            font-size: 1.8rem;
+            font-size: 1.3rem; /* было 1.8rem */
+            margin-bottom: 15px; /* было 25px */
+            padding-bottom: 10px; /* было 15px */
             text-align: center;
-            padding-bottom: 15px;
             border-bottom: 2px solid #ffd700;
         }
-
+        
         .instructions-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -138,43 +62,42 @@
                 gap: 20px;
             }
         }
-
+        
         .do-section, .dont-section {
             background-color: #f8f9fa;
             border-radius: 10px;
-            padding: 25px;
+            padding: 15px; /* было 25px */
             transition: all 0.3s;
         }
-
-        .do-section:hover, .dont-section:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
+        
         .do-section {
             border-left: 5px solid #28a745;
         }
-
+        
         .dont-section {
             border-left: 5px solid #dc3545;
         }
-
+        
         .section-header {
             display: flex;
             align-items: center;
             gap: 15px;
             margin-bottom: 20px;
         }
-
+        
         .section-icon {
-            font-size: 2rem;
-        }
-
-        .section-title-small {
             font-size: 1.5rem;
+        }
+        
+        .section-title-small {
+            font-size: 1.rem;
             font-weight: bold;
         }
-
+        
+        .do-icon {
+            color: #28a745;
+        }
+        
         .do-title {
             color: #28a745;
         }
@@ -182,136 +105,95 @@
         .dont-title {
             color: #dc3545;
         }
-
+        
         .instruction-list {
             list-style-type: none;
-            padding-left: 0;
+            padding: 0;
         }
-
+        
         .instruction-list li {
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(0,0,0,0.05);
             display: flex;
             align-items: flex-start;
             gap: 12px;
             line-height: 1.4;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         }
-
+        
         .instruction-list li:last-child {
             border-bottom: none;
         }
-
+        
         .instruction-icon {
             font-size: 1.3rem;
             flex-shrink: 0;
             margin-top: 2px;
         }
-
+        
         .do-icon {
             color: #28a745;
         }
-
+        
         .dont-icon {
             color: #dc3545;
         }
-
+        
         .instruction-text {
             color: #444;
-            font-size: 1.05rem;
+            font-size: 0.9rem; /* было 1.05rem */
         }
-
+        
         .controls {
             display: flex;
             justify-content: space-between;
             gap: 20px;
-            margin-top: 40px;
-            padding-top: 30px;
-            border-top: 2px solid #ffd700;
+            margin-top: 30px;
         }
-
-        @media (max-width: 768px) {
+        
+        .btn-primary, .btn-secondary {
+            flex: 1;
+            padding: 16px 24px;
+            font-size: 1.1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #ffed4e, #ffd700);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 215, 0, 0.3);
+        }
+        
+        .btn-secondary {
+            background-color: #f5f5f5;
+            color: #666;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #e9e9e9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        @media (max-width: 480px) {
             .controls {
                 flex-direction: column;
             }
-        }
-
-        button {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-            min-width: 180px;
-        }
-
-        .btn-secondary {
-            background-color: #ffffff;
-            color: #333333;
-            border: 2px solid #ffd700;
-        }
-
-        .btn-secondary:hover {
-            background-color: #f8f9fa;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
-        }
-
-        .btn-primary {
-            background-color: #ffd700;
-            color: #000000;
-        }
-
-        .btn-primary:hover {
-            background-color: #ffed4e;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
-        }
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            background-color: #ffffff;
-            border-top: 2px solid #ffd700;
-            margin-top: 40px;
-            color: #333333;
-            box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-        }
-
-        @media (max-width: 768px) {
-            .page-title {
-                font-size: 2rem;
-            }
             
             .material-name {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
             }
             
-            button {
-                width: 100%;
-                min-width: auto;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 10px;
-            }
-            
-            .page-title {
-                font-size: 1.5rem;
-            }
-            
-            .instructions-container {
-                padding: 20px;
-            }
-            
-            .do-section, .dont-section {
-                padding: 20px;
-            }
-            
-            .section-title-small {
+            .section-title {
                 font-size: 1.3rem;
             }
         }
@@ -321,52 +203,48 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo" id="mainLogo">♻️ TrashSort</div>
-                <button class="nav-button" onclick="window.history.back()">← Назад</button>
+                <div class="logo">♻️ TrashSort</div>
+                <button id="backBtn" class="nav-button">← Назад</button>
             </nav>
         </div>
     </header>
 
-    <main>
-        <div class="container">
-            <h1 class="page-title">Подготовка к утилизации</h1>
+    <main>         
+        <div class="preparation-container">
+            <div class="material-header">
+                <div class="material-name" id="materialName">Загрузка...</div>
+                <div class="material-container" id="materialContainer">Контейнер</div>
+            </div>
             
-            <div class="preparation-container">
-                <div class="material-header">
-                    <div class="material-name" id="materialName">Загрузка...</div>
-                    <div class="material-container" id="materialContainer">Контейнер</div>
-                </div>
+            <div class="instructions-container">
+                <h2 class="section-title">📋 Инструкция по подготовке</h2>
                 
-                <div class="instructions-container">
-                    <h2 class="section-title">📋 Инструкция по подготовке</h2>
+                <div class="instructions-grid">
+                    <div class="do-section">
+                        <div class="section-header">
+                            <div class="section-icon do-title">✅</div>
+                            <div class="section-title-small do-title">Что нужно делать</div>
+                        </div>
+                        <ul class="instruction-list" id="doList">
+                            <!-- Будут добавлены через JS -->
+                        </ul>
+                    </div>
                     
-                    <div class="instructions-grid">
-                        <div class="do-section">
-                            <div class="section-header">
-                                <div class="section-icon do-title">✅</div>
-                                <div class="section-title-small do-title">Что нужно делать</div>
-                            </div>
-                            <ul class="instruction-list" id="doList">
-                                <!-- Будут добавлены через JS -->
-                            </ul>
+                    <div class="dont-section">
+                        <div class="section-header">
+                            <div class="section-icon dont-title">❌</div>
+                            <div class="section-title-small dont-title">Чего стоит избегать</div>
                         </div>
-                        
-                        <div class="dont-section">
-                            <div class="section-header">
-                                <div class="section-icon dont-title">❌</div>
-                                <div class="section-title-small dont-title">Чего стоит избегать</div>
-                            </div>
-                            <ul class="instruction-list" id="dontList">
-                                <!-- Будут добавлены через JS -->
-                            </ul>
-                        </div>
+                        <ul class="instruction-list" id="dontList">
+                            <!-- Будут добавлены через JS -->
+                        </ul>
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <button class="btn-secondary" id="backBtn">Назад</button>
-                    <button class="btn-primary" id="nextBtn">Продолжить утилизацию</button>
-                </div>
+            </div>
+            
+            <div class="controls">
+                <button class="btn-secondary" id="backBtnPage">Назад</button>
+                <button class="btn-primary" id="nextBtnPage">Продолжить утилизацию</button>
             </div>
         </div>
     </main>
@@ -537,10 +415,10 @@
         
         // Настройка кнопок
         function setupButtons(materialId) {
-            const backBtn = document.getElementById('backBtn');
-            const nextBtn = document.getElementById('nextBtn');
+            const backBtnPage = document.getElementById('backBtnPage');
+            const nextBtnPage = document.getElementById('nextBtnPage');
             
-            backBtn.addEventListener('click', function() {
+            backBtnPage.addEventListener('click', function() {
                 // Проверяем, откуда пришли
                 const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
                 if (fromClassifier) {
@@ -552,7 +430,7 @@
                 }
             });
             
-            nextBtn.addEventListener('click', function() {
+            nextBtnPage.addEventListener('click', function() {
                 // Проверяем, пришли ли мы из классификатора
                 const fromClassifier = localStorage.getItem('fromClassifier') === 'true';
                 
@@ -646,19 +524,6 @@
                     window.location.href = 'index.html';
                 };
             }
-        }
-        
-        // Функция проверки, была ли уже сохранена утилизация
-        function wasDisposalAlreadySaved(userId, materialId, materialName, minutesAgo = 5) {
-            const disposals = JSON.parse(localStorage.getItem('trashsort_disposals')) || [];
-            const timeThreshold = new Date(Date.now() - minutesAgo * 60 * 1000).toISOString();
-            
-            return disposals.some(d => 
-                d.user_id === userId &&
-                d.material_id === materialId &&
-                d.material_name === materialName &&
-                d.timestamp > timeThreshold
-            );
         }
     </script>
 </body>

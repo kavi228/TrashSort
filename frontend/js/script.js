@@ -542,11 +542,6 @@ function initInstructionsPage() {
         return;
     }
     
-    // Обновляем заголовок страницы
-    if (pageTitle) {
-        pageTitle.textContent = `Инструкция по утилизации: ${selectedMaterial.name}`;
-    }
-    
     // Компактное название материала
     materialName.innerHTML = `
         <div style="font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 5px;">
@@ -560,7 +555,7 @@ function initInstructionsPage() {
     // Компактные инструкции
     if (instructionsText) {
         instructionsText.innerHTML = `
-            <div style="font-size: 0.9rem; line-height: 1.4;">
+            <div style="font-size: 0.9rem; line-height: 1.0;">
                 ${selectedMaterial.instructions.split('\n').map(line => {
                     if (line.startsWith('✓')) {
                         return `<div style="margin: 4px 0; padding-left: 8px; border-left: 2px solid #28a745;">${line.substring(1).trim()}</div>`;

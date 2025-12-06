@@ -28,10 +28,11 @@
         
         .instructions-column {
             flex: 1;
-            background-color: #f8f9fa;
+            background-color: #ffffff;
             border-radius: 8px;
             padding: 15px;
-            border: 1px solid #e0e0e0;
+            border: 1px solid #ffffff;
+            border: 2px solid #ffd700;
         }
         
         .instructions-column h3 {
@@ -39,6 +40,7 @@
             margin-bottom: 10px;
             color: #333;
             text-align: center;
+            border-bottom: 2px solid #ffd700;
         }
         
         .instructions-content.compact {
@@ -73,9 +75,7 @@
     </header>
 
     <main>
-        <div class="container">
-            <h1 class="page-title" id="pageTitle">Инструкция по утилизации</h1>
-            
+        <div class="container">            
             <div class="instructions-ultra-compact">
                 <div id="materialName" class="instructions-compact-title">
                     <!-- Название материала загружается через JS -->
@@ -98,7 +98,7 @@
                 </div>
                 
                 <div class="action-buttons" style="margin-top: 20px;">
-                    <button id="hasTriggerBtn" class="warning-button">Мой предмет не подходит для переработки</button>
+                    <button id="hasTriggerBtn" class="warning-button">Предмет не подходит для переработки</button>
                     <button id="nextBtn" class="btn btn-primary">Всё в порядке, продолжить →</button>
                 </div>
             </div>
