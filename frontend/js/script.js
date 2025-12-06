@@ -834,12 +834,12 @@ function initStatisticsPage() {
     // ========== ЭКОЛОГИЧЕСКИЙ ВКЛАД ==========
     let ecoImpactMessage = '';
     if (stats.total > 0) {
-        // Рассчитываем экологический вклад
+        // Рассчитываем экологический вклад с округлением до двух знаков
         const treesSaved = Math.floor((stats.byMaterial['Бумага'] || 0) * 0.17);
-        const energySaved = (stats.byMaterial['Металл'] || 0) * 4.5 + 
-                          (stats.byMaterial['Стекло'] || 0) * 3.2 + 
-                          (stats.byMaterial['Пластик'] || 0) * 2.1;
-        const waterSaved = (stats.byMaterial['Бумага'] || 0) * 50;
+        const energySaved = ((stats.byMaterial['Металл'] || 0) * 4.5 + 
+                           (stats.byMaterial['Стекло'] || 0) * 3.2 + 
+                           (stats.byMaterial['Пластик'] || 0) * 2.1).toFixed(2);
+        const waterSaved = ((stats.byMaterial['Бумага'] || 0) * 50).toFixed(2);
         
         ecoImpactMessage = `
             <div class="eco-impact-section" style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.05); border-radius: 10px;">
