@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
     <style>
+        body {
+            background-color: white;
+            color: #333;
+        }
+        
         .hero {
             text-align: center;
             padding: 60px 20px;
@@ -21,7 +26,7 @@
         .hero p {
             font-size: 1.2rem;
             margin-bottom: 40px;
-            color: #ccc;
+            color: #666;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
@@ -52,16 +57,48 @@
         }
         
         .feature-card {
-            background-color: #111;
+            background-color: #f8f9fa;
             border: 2px solid #ffd700;
             border-radius: 10px;
             padding: 30px;
             text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .feature-card h3 {
+            color: #333;
+        }
+        
+        .feature-card p {
+            color: #666;
         }
         
         .feature-icon {
             font-size: 3rem;
             margin-bottom: 20px;
+        }
+        
+        header {
+            background-color: white;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        footer {
+            background-color: white;
+            border-top: 1px solid #eaeaea;
+            color: #333;
+        }
+        
+        footer p {
+            color: #333;
+        }
+        
+        footer p[style*="color: #666"] {
+            color: #666 !important;
+        }
+        
+        .logo {
+            color: #333;
         }
     </style>
 </head>
@@ -114,7 +151,7 @@
 
     <footer>
         <div class="container">
-            <p>♻️ Система сортировки мусора TrashSort © 2024</p>
+            <p>♻️ Система сортировки мусора TrashSort © 2025</p>
             <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">
                 Адаптировано для планшетов и мобильных устройств
             </p>

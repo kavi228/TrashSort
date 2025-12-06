@@ -7,8 +7,8 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #000;
-    color: #ffd700; /* Желтый */
+    background-color: #ffffff;
+    color: #333333; /* Темный текст для лучшей читаемости */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -19,41 +19,51 @@ body {
     margin: 0 auto;
     padding: 20px;
     width: 100%;
+    /**/
+        display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
 }
 
 /* Шапка и навигация */
 header {
-    background-color: #222;
+    background-color: #ffffff;
     padding: 15px 0;
     border-bottom: 2px solid #ffd700;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 }
 
 .logo {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #ffd700;
+    color: #333333;
+
 }
 
 .nav-button {
     background-color: #ffd700;
-    color: #000;
+    color: #000000;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.3s;
+    width: 15%;
 }
 
 .nav-button:hover {
     background-color: #ffed4e;
     transform: scale(1.05);
+
 }
 
 /* Основной контент */
@@ -70,8 +80,9 @@ main {
     font-size: 2.5rem;
     margin-bottom: 40px;
     text-align: center;
-    color: #ffd700;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    color: #333333;
+    /**/
+    text-align: center;
 }
 
 /* Страница 1: Выбор пользователя */
@@ -91,26 +102,27 @@ main {
     border: 2px solid #ffd700;
     border-radius: 10px;
     padding: 20px;
-    background-color: #111;
+    background-color: #f8f9fa;
 }
 
 .user-item {
     padding: 15px;
     margin: 10px 0;
-    background-color: #222;
+    background-color: #ffffff;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s;
-    border: 1px solid transparent;
+    border: 1px solid #e0e0e0;
+    color: #333333;
 }
 
 .user-item:hover {
-    background-color: #333;
+    background-color: #f0f0f0;
     border-color: #ffd700;
 }
 
 .user-item.selected {
-    background-color: #333;
+    background-color: #fff9e6;
     border: 2px solid #ffd700;
 }
 
@@ -119,6 +131,8 @@ main {
     gap: 10px;
     width: 100%;
     margin-top: 20px;
+    justify-content: center; /* Горизонтальное выравнивание */
+    /* align-items: center; Вертикальное выравнивание (если нужно) */
 }
 
 .add-user-input {
@@ -126,13 +140,13 @@ main {
     padding: 12px;
     border: 2px solid #ffd700;
     border-radius: 5px;
-    background-color: #111;
-    color: #ffd700;
+    background-color: #ffffff;
+    color: #333333;
     font-size: 1rem;
 }
 
 .add-user-input::placeholder {
-    color: #666;
+    color: #999999;
 }
 
 .action-buttons {
@@ -153,7 +167,18 @@ main {
 
 .btn-primary {
     background-color: #ffd700;
-    color: #000;
+    color: #000000;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 20px;
+    transition: all 0.3s;
+
+    margin-left: auto;
+    display: block;
+    width: fit-content;
 }
 
 .btn-primary:hover {
@@ -162,13 +187,13 @@ main {
 }
 
 .btn-secondary {
-    background-color: #333;
-    color: #ffd700;
+    background-color: #ffffff;
+    color: #333333;
     border: 2px solid #ffd700;
 }
 
 .btn-secondary:hover {
-    background-color: #444;
+    background-color: #f8f9fa;
 }
 
 /* Страница 2: Выбор материала */
@@ -181,7 +206,7 @@ main {
 }
 
 .material-card {
-    background-color: #111;
+    background-color: #ffffff;
     border: 2px solid #ffd700;
     border-radius: 10px;
     padding: 25px;
@@ -190,6 +215,7 @@ main {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .material-card:hover {
@@ -198,28 +224,28 @@ main {
 }
 
 .material-card.selected {
-    background-color: #222;
+    background-color: #fff9e6;
     box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
 }
 
 .material-title {
     font-size: 1.4rem;
-    color: #ffd700;
+    color: #333333;
     margin-bottom: 10px;
 }
 
 .material-description {
-    color: #ccc;
+    color: #666666;
     font-size: 0.9rem;
     line-height: 1.5;
 }
 
 .material-example {
-    background-color: #222;
+    background-color: #f8f9fa;
     padding: 15px;
     border-radius: 5px;
     font-size: 0.85rem;
-    color: #aaa;
+    color: #666666;
     white-space: pre-line;
 }
 
@@ -227,33 +253,40 @@ main {
 .instructions-container {
     max-width: 800px;
     width: 100%;
-    background-color: #111;
+    background-color: #ffffff;
     border: 2px solid #ffd700;
     border-radius: 10px;
     padding: 30px;
     margin-top: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .instructions-section {
     margin-bottom: 30px;
+    justify-content: center; /* Горизонтальное выравнивание */
 }
 
 .section-title {
-    color: #ffd700;
+    color: #333333;
     margin-bottom: 15px;
     font-size: 1.3rem;
+    /**/
+    text-align: center;
 }
 
+
 .instructions-content {
-    background-color: #222;
+    background-color: #f8f9fa;
     padding: 20px;
     border-radius: 5px;
     white-space: pre-line;
     line-height: 1.6;
+    color: #333333;
+    text-align: left;
 }
 
 .restrictions {
-    background-color: #330000;
+    background-color: #fff5f5;
     border-left: 4px solid #ff3333;
 }
 
@@ -288,27 +321,28 @@ main {
 }
 
 .stat-card {
-    background-color: #111;
+    background-color: #ffffff;
     border: 2px solid #ffd700;
     border-radius: 10px;
     padding: 25px;
     text-align: center;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .stat-value {
     font-size: 2.5rem;
     font-weight: bold;
-    color: #ffd700;
+    color: #333333;
     margin: 10px 0;
 }
 
 .stat-label {
-    color: #ccc;
+    color: #666666;
     font-size: 0.9rem;
 }
 
 .compliment {
-    background-color: #111;
+    background-color: #ffffff;
     border: 2px solid #ffd700;
     border-radius: 10px;
     padding: 30px;
@@ -316,6 +350,8 @@ main {
     text-align: center;
     font-size: 1.2rem;
     font-style: italic;
+    color: #333333;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
 .materials-breakdown {
@@ -327,19 +363,23 @@ main {
     justify-content: space-between;
     align-items: center;
     padding: 15px;
-    background-color: #111;
+    background-color: #ffffff;
     margin: 10px 0;
     border-radius: 5px;
     border-left: 4px solid #ffd700;
+    color: #333333;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 /* Футер */
 footer {
     text-align: center;
     padding: 20px;
-    background-color: #222;
+    background-color: #ffffff;
     border-top: 2px solid #ffd700;
     margin-top: 40px;
+    color: #333333;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
 }
 
 /* Адаптивность */
