@@ -33,6 +33,7 @@
             padding: 15px 0;
             border-bottom: 2px solid #ffd700;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            width: 100%;
         }
 
         nav {
@@ -40,6 +41,9 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
         }
 
         .logo {
@@ -56,17 +60,16 @@
         }
 
         .nav-button {
-            font-size: 1rem;
+            font-size: 1.1rem;
             background-color: #ffd700;
             color: #000000;
             border: none;
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             transition: all 0.3s;
-            min-width: auto;
-            width: auto;
+            width: 15%;
         }
 
         .nav-button:hover {
@@ -256,12 +259,6 @@
                 padding: 6px 0;
                 font-size: 0.85rem;
             }
-            
-            .nav-button {
-                width: 25%;
-                padding: 8px 15px;
-                font-size: 1rem;
-            }
         }
     </style>
 </head>
@@ -269,7 +266,7 @@
     <header>
         <div class="container">
             <nav>
-                <div class="logo" id="mainLogo">♻️ TrashSort</div>
+                <div class="logo">♻️ TrashSort</div>
                 <button class="nav-button" onclick="window.history.back()">← Назад</button>
             </nav>
         </div>
