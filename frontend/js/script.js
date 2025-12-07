@@ -23,7 +23,7 @@ const materials = [
         id: 3,
         container: "Контейнер 3",
         name: "Пищевой пластик",
-        example: "Твёрдые стаканчики и крышки, контейнеры, жёсткая одноразовая посуда",
+        example: "Твёрдые стаканчики и крышки, контейнеры, упаковка от готовой еды, жёсткая одноразовая посуда",
         instructions: "✓ Чистые\n✓ Со снятыми наклейками, термоусадочной плёнкой\n✓ С цветной печатью прямо на пластике\n✓ Только твёрдые ёмкости",
         restrictions: "✗ С термоусадочной плёнкой\n✗ Пакеты с маркировкой\n✗ Крупногабаритные ёмкости (вёдра, тазы и т.д.)"
     },
@@ -124,9 +124,9 @@ function initUserSelection() {
     
     // Загружаем пользователей
     allUsers = loadData('trashsort_users') || [
-        { id: 1, username: "Ерог" },
-        { id: 2, username: "Кирилл" },
-        { id: 3, username: "Артём" }
+        { id: 1, username: "Алексей" },
+        { id: 2, username: "Мария" },
+        { id: 3, username: "Дмитрий" }
     ];
     
     // Создаем поиск
@@ -542,6 +542,11 @@ function initInstructionsPage() {
         return;
     }
     
+    // Обновляем заголовок страницы
+    if (pageTitle) {
+        pageTitle.textContent = `Инструкция по утилизации: ${selectedMaterial.name}`;
+    }
+    
     // Компактное название материала
     materialName.innerHTML = `
         <div style="font-size: 1.5rem; font-weight: bold; color: #333; margin-bottom: 5px;">
@@ -555,7 +560,7 @@ function initInstructionsPage() {
     // Компактные инструкции
     if (instructionsText) {
         instructionsText.innerHTML = `
-            <div style="font-size: 0.9rem; line-height: 1.0;">
+            <div style="font-size: 0.9rem; line-height: 1.4;">
                 ${selectedMaterial.instructions.split('\n').map(line => {
                     if (line.startsWith('✓')) {
                         return `<div style="margin: 4px 0; padding-left: 8px; border-left: 2px solid #28a745;">${line.substring(1).trim()}</div>`;
